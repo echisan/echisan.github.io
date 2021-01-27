@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>操作系统-页面置换算法 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="把选择换出页面的算法称为页面置换算法，置换算法的好坏直接影响到系统的性能。不适当的算法可能回导致进程发生“抖动”，...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?73781647">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    操作系统-页面置换算法
+                    <div class="post-meta">
+                        <time datetime="2019-10-29T02:11:46.000Z" itemprop="datePublished">
+                            2019-10-29 10:11
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/操作系统/'>操作系统</a>, 
+                        
+                        <a href='/tags/算法/'>算法</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <p>把选择换出页面的算法称为页面置换算法，置换算法的好坏直接影响到系统的性能。<br>不适当的算法可能回导致进程发生“抖动”，即刚被换出的页很快又被访问，需要将它重新调入，此时又需要再选一页调出。</p>
+<h2 id="最佳置换算法和先进先出置换算法"><a href="#最佳置换算法和先进先出置换算法" class="headerlink" title="最佳置换算法和先进先出置换算法"></a>最佳置换算法和先进先出置换算法</h2><p>下面两种是比较极端的算法，最佳置换算法是一种理想化的算法，具有最好的性能但是实际上无法实现。而先进先出算法是最直观的算法，由于与通常页面的使用规律不符，可能是性能最差的算法。</p>
+<ol>
+<li>最佳置换算法</li>
+</ol>
+<p>选择的淘汰页面将是以后永不使用的，或许是最长时间不再被访问的页面。</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/67646947-5dadd100-f96b-11e9-9c3c-490fb8277e8d.png" alt="image"></p>
+<ol start="2">
+<li>先进先出算法</li>
+</ol>
+<p>该算法总是淘汰最先进入内存的页面，即选择在内存中驻留时间最久的页面予以淘汰。</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/67646999-9188f680-f96b-11e9-93be-8ab04137326d.png" alt="image"></p>
+<h2 id="最近最久未使用和最少使用置换算法"><a href="#最近最久未使用和最少使用置换算法" class="headerlink" title="最近最久未使用和最少使用置换算法"></a>最近最久未使用和最少使用置换算法</h2><ol>
+<li>LRU(Least Recently Used)置换算法的描述</li>
+</ol>
+<p>LRU页面置换算法是根据页面调入内存后的使用情况作出决策的，LRU是选择最久未使用的页面予以淘汰。<br>该算法赋予每个页面一个访问字段，用来记录一个页面上次被访问以来所经历的时间t。当淘汰一个页面时，选择现有页面中其t值最大的，即最近最久未使用的页面予以淘汰。</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/67647228-74085c80-f96c-11e9-98ac-c199f0c98b0d.png" alt="image"></p>
+<ol start="2">
+<li>LRU置换算法的硬件支持</li>
+</ol>
+<p>LRU虽然是一种比较好的算法，但要求系统有较多的支持硬件。为了了解一个进程在内存中的各个页面各有多少时间未被进程访问，以及如何快速地知道哪一页是最近最久未使用的页面，须有寄存器和栈两类硬件之一的支持</p>
+<p>1） 寄存器<br>为了记录某进程在内存中各页的使用情况，须为每个在内存中的页面配置一个移位寄存器，可表示为：</p>
+<pre class="line-numbers language-none"><code class="language-none">R&#x3D;Ra-1Ra-2Ra-3···R2R1R0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>当进程访问某物理块时，要将相应寄存器的<code>Ra-1</code>位置设置成1。此时定时信号将没隔一定时间(例如100ms)将寄存器右移一位。</p>
+<blockquote>
+<p>这里可能有点抽象，我理解是如下。就是每隔一段时间，将寄存器右移一位，从R7 -&gt; R6，然后判断对应的页是否被使用，如果使用了则记为1，未使用则记为0，则通过统计这8个寄存器中的记录(R值)，如：<code>00010011</code>跟<code>00000101</code>等总共8个值，明显在<code>00010011</code>跟<code>00000101</code>比较的话，后者比前者小，则说明后者更久未使用</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>0</th>
+<th>100ms</th>
+<th>200ms</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>页号</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>寄存器</td>
+<td>R7:0</td>
+<td>R6:1</td>
+<td>R5:1</td>
+</tr>
+</tbody></table>
+<p>如果把n位寄存器的数看作是一个整数，那么具有最小数值的寄存器所对应的页面就是最近最久未使用的页面。</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/67648028-6bfdec00-f96f-11e9-9100-a0707bc94316.png" alt="image"></p>
+<p>2） 栈<br>利用一个特殊的栈保存当前使用的各个页面的页面号，每当进程访问某页面时，便将该页面的页号从栈中移出，将它压入栈顶。</p>
+<p>假设一进程，分为5个物理块，所访问的页面号序列未：</p>
+<pre class="line-numbers language-none"><code class="language-none">4,7,0,7,1,0,1,2,1,2,6<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<blockquote>
+<p>当第四次访问时，因为7已存在在栈中，注意这里的操作是，直接将栈中的7移除了，然后再把第4次访问的7放如栈顶</p>
+</blockquote>
+<p><img src="https://user-images.githubusercontent.com/38010908/67648551-f72bb180-f970-11e9-855d-a74e3934d307.png" alt="image"></p>
+<ol start="3">
+<li>最少使用(Least Frequently Used, LFU)置换算法</li>
+</ol>
+<p>在LFU算法中采用了移位寄存器方式，刚上面的LRU的访问图完全相同。但是是将<code>Ra-1Ra-2···R2R1</code>求和。</p>
+<blockquote>
+<p>应该指出，这种算法并不能真正反映出页面的使用情况，因为在每一时间间隔内，只是用寄存器的一位来记录页的使用情况，因此，在该时间间隔内，对某页访问一次和访问1000次是完全等效的。</p>
+</blockquote>
+<h2 id="Clock置换算法"><a href="#Clock置换算法" class="headerlink" title="Clock置换算法"></a>Clock置换算法</h2><p>虽然LRU是一种较好的算法，但由于要求比较多的硬件支持，使得其实现所需的成本较高，故实际应用中，大多采用LRU近似算法，Clock算法就是用的比较多的一种LRU近似算法</p>
+<ol>
+<li>简单的Clock置换算法</li>
+</ol>
+<p>为每页设置一位访问位，将内存中的所有页面都通过链接指针连接成一个循环队列，当某页被访问时，其访问位被置1。置换算法在选择一页淘汰时，只需检查页的访问位，如果是0则置换出，如果是1则置为0，再按照FIFO算法检查下一个页面，当其访问位仍为1时，则再返回到队首去检查第一个页面。</p>
+<p>但因为该算法只有一位访问位，只能用它表示该页是否已经使用过，而置换时是将未使用过的页面换出去，故又把该算法成为最近未用算法或NRU(Not Recently Used)算法。</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/67649407-f47e8b80-f973-11e9-912b-4b6d15e75439.png" alt="image"></p>
+<ol start="2">
+<li>改进型Clock置换算法</li>
+</ol>
+<p>在改进型Clock算法中，除须考虑页面的使用情况外，还需再增加一个因素——置换代价。这样，选择页面置换出时，既要是未使用过的页面，又要是未修改过的页面。</p>
+<p>由访问位A和修改位M可以组合成下面四种类型的页面：</p>
+<ol>
+<li>A=0,M=0, 既最近未访问又没修改过，是最佳的淘汰页</li>
+<li>A=0,M=1，最近未访问，但修改过了，不是很好的淘汰页</li>
+<li>A=1,M=0, 最近已访问过，未修改过，可能再被访问</li>
+<li>A=1,M=1，最近咦访问，且修改过，可能再被访问</li>
+</ol>
+<p>该算法的执行过程可分为以下三步：</p>
+<ol>
+<li>从指针所指示的位置开始，扫描循环队列，寻找A=0且M=0的页，第一次扫描不改变访问位A</li>
+<li>如果第一步失败，继续扫描循环队列，寻找A=0且M=1的页，第二轮扫描期间，将所有扫过的页面访问位设置为0</li>
+<li>如果第二步页失败了，则将指针返回到开始的位置，并将所有的访问位复0，然后重复第一步，如果仍失败，必要时再重复第二步，此时就一定能找到被淘汰的页</li>
+</ol>
+<blockquote>
+<p>该算法与简单Clock算法比较，可减少磁盘的I/O操作次数，但为找到一个可置换的页，可能须经过几轮扫描，换言之，实现该算法本身的开销将有所增加</p>
+</blockquote>
+<h2 id="页面缓冲算法-Page-Buffering-Algorithm-PBA"><a href="#页面缓冲算法-Page-Buffering-Algorithm-PBA" class="headerlink" title="页面缓冲算法(Page Buffering Algorithm, PBA)"></a>页面缓冲算法(Page Buffering Algorithm, PBA)</h2><ol>
+<li>影响页面换进换出效率的若干因素<ol>
+<li>页面置换算法</li>
+<li>写回磁盘的频率</li>
+<li>读入内存的频率</li>
+</ol>
+</li>
+<li>页面缓冲算法PBA</li>
+</ol>
+<p>PBA算法的主要特点是：</p>
+<ol>
+<li>显著降低页面换进、换出的频率，使磁盘I/O操作次数大为减少</li>
+<li>正由于换入换出的开销大幅度减少，才能使其采用一种较简单的置换策略，如FIFO</li>
+</ol>
+<p>为了能显著降低页面换进、换出的频率，在内存中设置了如下两个链表</p>
+<ol>
+<li>空闲页面链表</li>
+</ol>
+<p>该链表是一个空闲物理块链表，是系统掌握的空闲物理块，用于分配给频繁发生缺页的进程，以降低该进程的缺页率。当这样的进程需要读入一个页面时，便可利用空闲物理块链表中的第一个物理块来装入该页。</p>
+<p>当下次再次请求该页面时，不需要再从外存中读入，而直接在该链表中取出</p>
+<ol start="2">
+<li>修改页链表</li>
+</ol>
+<p>该链表是已修改的页面所形成的链表。跟上述原理几乎一样，只是这个链表用于存放被置换出去已修改的页，这样可以减少写到外存的频率，也可以减低从外存载入到内存的频率。</p>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/11/13/k8s-arthas-managerthread-problem/">
+        Previous post<br>k8s或docker中运行arthas出现&#34;Unable to get pid of LinuxThreads manager thread&#34;的问题
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/10/29/os-cunchu/">
+        Next post<br>操作系统-存储器管理
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?90913978"></script>
+
+
+
+</body>
+</html>

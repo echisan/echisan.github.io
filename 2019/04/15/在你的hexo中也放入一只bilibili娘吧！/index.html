@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>在你的hexo中也放入一只bilibili娘吧！ - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="前言因为突然想要在自己的hexo站点里也放入一只看板娘，于是开始搜集资料，期间遇到一些问题花了点时间解决，由于前端...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?38566964">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    在你的hexo中也放入一只bilibili娘吧！
+                    <div class="post-meta">
+                        <time datetime="2019-04-15T08:20:09.000Z" itemprop="datePublished">
+                            2019-04-15 16:20
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/hexo/'>hexo</a>, 
+                        
+                        <a href='/tags/live2d/'>live2d</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>因为突然想要在自己的hexo站点里也放入一只看板娘，于是开始搜集资料，期间遇到一些问题花了点时间解决，由于前端实在是在苦手（后端程序员的苦笑）太难受了。。</p>
+<p>所以决定开始使用Hexo开始写博客了，总不能一直挂着初始化的<a href="/2019/04/10/hello-world/">Hello World</a>一直挂在首页吧哈哈哈，所以打算记录一下这个过程，假如也有人遇到同样的问题可以方便解决一下（如果能看到的话</p>
+<h2 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h2><p>前面说的都是废话了，忘了说我的目的了。</p>
+<p>主要目的在于使用<a target="_blank" rel="noopener" href="https://github.com/EYHN/hexo-helper-live2d">hexo-helper-live2d</a>放一只看板娘，使用<a target="_blank" rel="noopener" href="https://github.com/52cik/bilibili-haruna">bilibili-haruna</a>33娘的模型</p>
+<p>嘛不废话了，开始了～</p>
+<h2 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h2><h3 id="安装-hexo-helper-live2d"><a href="#安装-hexo-helper-live2d" class="headerlink" title="安装 hexo-helper-live2d"></a>安装 hexo-helper-live2d</h3><p>如果没有安装<code>hexo-helper-live2d</code>的话需要先安装啦</p>
+<pre class="line-numbers language-none"><code class="language-none">npm install --save hexo-helper-live2d<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>但是我在安装的时候提示下面的内容，不知道干啥用的为什么的，但是我还是安装了下面的那个东西了，如果你没有碰到这个的话那就直接跳过了</p>
+<pre class="line-numbers language-none"><code class="language-none">npm WARN babel-eslint@10.0.1 requires a peer of eslint@&gt;&#x3D; 4.12.1 but none is installed. You must install peer dependencies yourself.<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><p>如果就执行上面的命令就可以的话就完全没有必要记录这次过程了。因为添加bilibili娘模型需要手动添加，没法全自动呢。</p>
+<p>大体的步骤如下</p>
+<ol>
+<li>在你的博客根目录下创建<code>live2d_models</code>文件夹</li>
+<li>在<code>live2d_models</code>文件夹下创建一个将要添加的模型的名字的文件夹，如我这里用33娘为例，创建名为<code>33</code>的文件夹, 路径为<code>live2d_models/33</code></li>
+<li>在<code>33</code>目录下创建两个文件夹<code>moc</code> <code>mtn</code></li>
+<li>在<code>moc</code>文件夹下创建<code>33.1024</code></li>
+<li>将<a target="_blank" rel="noopener" href="https://github.com/52cik/bilibili-haruna">bilibili-haruna</a>里面的模型下载回来</li>
+<li>根据上面下载回来你想要的模型里文件一一放进去我们创建好的文件夹</li>
+<li>因为需要一个<code>33.model.json</code>文件在<code>33</code>文件夹的目录下，找到你想要的那个主题的文件复制过来然后改一下名，比如我选择的主题是<code>2017valley</code>，所以将文件<code>model.2017.valley.json</code>复制过来并改名为<code>33.model.json</code></li>
+<li>需要修改第7步中的<code>33.model.json</code>文件</li>
+</ol>
+<p>现在你的文件夹结构大概为这样，先把目录放出来之后再详细说一下上面中有一些细节步骤</p>
+<p><img src="/images/201904/fileconstruct.png" alt="image-20190415165616631"></p>
+<p>确认以上目录结构没有问题之后就可以继续了（主要是里面的文件夹的目录结构，文件内容暂时不用管，后续文章中会说明的。）</p>
+<p>现在回到第6步中。</p>
+<blockquote>
+<p>比如：我怎么知道我要复制什么文件进去呢？</p>
+</blockquote>
+<p>因为我在查看提供npm安装的模型github仓库<a target="_blank" rel="noopener" href="https://github.com/xiazeyu/live2d-widget-models">live2d-widget-models</a>中查看目录结构，如果有兴趣可以点进去该仓库中查看，里面提供了挺多模型的。</p>
+<p>我这里就直接放出里面某个模型的结构图了，该结构如下</p>
+<p><img src="/images/201904/widget-models-file-construct.png" alt="image-20190415170643812"></p>
+<p>之后我就按照这个目录结构在<code>第5步</code>中下载好的模型文件一一找到并复制进在<code>1-4步</code>中创建的文件夹中。</p>
+<p>以下图是我们下载回来的bilibili娘模型的仓库，红色框框住的是我们目前需要的文件</p>
+<p><img src="/images/201904/bili33-require-file.png" alt="image-20190415171548522"></p>
+<p>根据对应的文件格式放到对应的文件夹中。</p>
+<p>复制好了之后，打开<code>33.model.json</code>文件，将该文件修改成如下内容。（主要修改的是文件的相对位置）</p>
+<p>但是在下面的内容中，你应该是没有<code>&quot;moc/33.1024/texture_00.png&quot;</code>这个的。根据文件中的<code>&quot;33.1024/closet.default.v2/texture_00.png&quot;</code>找到那个<code>texture_00.png</code>文件，并复制到<code>moc</code>文件夹下。</p>
+<p>下面是<code>33.model.json</code>文件：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json">&#123;
+  &quot;type&quot;: &quot;Live2D Model Setting&quot;,
+  &quot;name&quot;: &quot;33&quot;,
+  &quot;label&quot;: &quot;33&quot;,
+  &quot;model&quot;: &quot;moc&#x2F;33.v2.moc&quot;,
+  &quot;textures&quot;: [
+    &quot;moc&#x2F;33.1024&#x2F;texture_00.png&quot;,
+    &quot;moc&#x2F;33.1024&#x2F;texture_01.png&quot;,
+    &quot;moc&#x2F;33.1024&#x2F;texture_02.png&quot;,
+    &quot;moc&#x2F;33.1024&#x2F;texture_03.png&quot;
+  ],
+  &quot;layout&quot;: &#123; &quot;center_x&quot;: 0, &quot;center_y&quot;: 0.1, &quot;width&quot;: 2.3, &quot;height&quot;: 2.3 &#125;,
+  &quot;motions&quot;: &#123;
+    &quot;idle&quot;: [
+      &#123;
+        &quot;file&quot;: &quot;mtn&#x2F;33.v2.idle-01.mtn&quot;,
+        &quot;fade_in&quot;: 2000,
+        &quot;fade_out&quot;: 2000
+      &#125;,
+      &#123;
+        &quot;file&quot;: &quot;mtn&#x2F;33.v2.idle-02.mtn&quot;,
+        &quot;fade_in&quot;: 2000,
+        &quot;fade_out&quot;: 2000
+      &#125;,
+      &#123;
+        &quot;file&quot;: &quot;mtn&#x2F;33.v2.idle-03.mtn&quot;,
+        &quot;fade_in&quot;: 100,
+        &quot;fade_out&quot;: 100
+      &#125;
+    ],
+    &quot;tap_body&quot;: [
+      &#123;
+        &quot;file&quot;: &quot;mtn&#x2F;33.v2.touch.mtn&quot;,
+        &quot;fade_in&quot;: 500,
+        &quot;fade_out&quot;: 200
+      &#125;
+    ],
+    &quot;thanking&quot;: [
+      &#123;
+        &quot;file&quot;: &quot;mtn&#x2F;33.v2.thanking.mtn&quot;,
+        &quot;fade_in&quot;: 2000,
+        &quot;fade_out&quot;: 2000
+      &#125;
+    ]
+  &#125;
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>到这里应该<code>live2d_models</code>文件夹下的文件应该都处理完毕了，接下来将配置<code>_config.yml</code>文件，据说是根目录下的<code>_config.yml</code>或者是主题下的都行，我没试过在主题下的配置文件，我直接在根目录的配置文件的。</p>
+<p>配置内容大概如下：</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml">live2d:
+  enable: true
+  # 这里设置成local
+  scriptFrom: local
+  model:
+    use: &quot;33&quot;
+    scale: 1
+    hHeadPos: 0.5
+    vHeadPos: 0.618
+  display:
+    superSample: 2
+    width: 150
+    height: 300
+    position: left
+    hOffset: 0
+    vOffset: -20
+  mobile:
+    # 因为我没有这个需求，我就直接false了
+    show: false
+    scale: 0.5
+  react:
+    opacityDefault: 0.7
+    opacityOnHover: 0.2
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这里不贴各个配置项的具体内容了，大家可以到<a target="_blank" rel="noopener" href="https://github.com/EYHN/hexo-helper-live2d/blob/master/README.zh-CN.md#%E8%AF%A6%E7%BB%86%E7%9A%84%E8%AE%BE%E7%BD%AE">https://github.com/EYHN/hexo-helper-live2d/blob/master/README.zh-CN.md#详细的设置</a>看，再根据自己需求改就行了，这篇文章讲到能跑起来为止就ok了</p>
+<p>到目前为止应该是能跑起来了，不信你看左手边233</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>感谢以下项目及其作者提供了可爱的看板娘～</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/EYHN/hexo-helper-live2d/blob/master/README.zh-CN.md">hexo-helper-live2d</a> — by EYHN</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/52cik/bilibili-haruna">bilibili-haruna</a> — by 52cik</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/xiazeyu/live2d-widget-models">live2d-widget-models</a> — by xiazepu</p>
+<p>感谢以下作者提供优秀的教程供参考</p>
+<p><a target="_blank" rel="noopener" href="https://plxus.github.io/2018/03/%E5%9C%A8%E4%BD%A0%E7%9A%84-Hexo-%E5%B0%8F%E7%AB%99%E4%B8%AD%E6%94%BE%E4%B8%80%E5%8F%AA%E7%9C%8B%E6%9D%BF%E5%A8%98%EF%BC%81/">在你的 Hexo 小站中放一只看板娘！</a>  — by plxus</p>
+<p><a target="_blank" rel="noopener" href="https://juejin.im/post/5b447600f265da0fa332d8ac">hexo 添加live2d看板动画</a> — by annkee</p>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/04/17/touch-java-nio/">
+        Previous post<br>初悉Java nio
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/04/15/%E6%9C%AA%E6%9D%A5%E4%B8%80%E4%BA%9B%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/">
+        Next post<br>未来一些学习计划
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?93417410"></script>
+
+
+
+</body>
+</html>

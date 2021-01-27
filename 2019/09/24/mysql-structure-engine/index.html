@@ -1,0 +1,457 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>mysql-体系结构及存储引擎 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="mysql主要由以下几个部分组成
+连接池组件
+管理服务和工具组件
+sql接口组件
+查询分析器组件
+优化器组件
+缓冲...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?22909859">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    mysql-体系结构及存储引擎
+                    <div class="post-meta">
+                        <time datetime="2019-09-24T06:12:45.000Z" itemprop="datePublished">
+                            2019-09-24 14:12
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/mysql/'>mysql</a>, 
+                        
+                        <a href='/tags/innodb/'>innodb</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h2 id="mysql主要由以下几个部分组成"><a href="#mysql主要由以下几个部分组成" class="headerlink" title="mysql主要由以下几个部分组成"></a>mysql主要由以下几个部分组成</h2><ul>
+<li>连接池组件</li>
+<li>管理服务和工具组件</li>
+<li>sql接口组件</li>
+<li>查询分析器组件</li>
+<li>优化器组件</li>
+<li>缓冲（cache）组件</li>
+<li>插件式存储引擎</li>
+<li>物理文件</li>
+</ul>
+<h2 id="后台线程"><a href="#后台线程" class="headerlink" title="后台线程"></a>后台线程</h2><p>mysql是多线程模型，主要有4类型的线程</p>
+<ul>
+<li>master thread（主要负责缓冲池中的数据异步刷新到磁盘）</li>
+<li>io thread （因采用aio，所以该线程主要处理io请求的回调）<pre><code>- 又分为 read io，write io
+</code></pre>
+</li>
+<li>purge thread （回收undo页）</li>
+<li>page cleaner thread （innodb 1.2.x引入，负责脏页刷新操作，目的是减轻master thread的压力，以及用户查询线程的阻塞）</li>
+</ul>
+<h2 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h2><ol>
+<li>缓冲池（为了弥补cpu跟磁盘的速度，会将磁盘读取到的数据存到缓冲池中，如果有修改操作，会先更新缓冲区的数据，然后再以一定频率刷新到磁盘，值得注意的是，并非每次页发生更新时触发，而是通过<strong>checkpoint</strong>的机制刷新回磁盘)</li>
+<li>LRU（做了一些优化，多加了一个<code>midpoint</code>，当缓冲池不能存放新读取到的页时，会释放末尾的页，而把新的数据存到<code>midpoint</code>的位置中，<code>midpoint</code>前称为<code>new</code>列表后称为<code>old</code>列表，这样做是为了避免某些sql操作会将缓冲池中的页刷新出去）<ul>
+<li>这类操作主要为索引或数据的扫描操作，这类操作通常需要访问表中的许多页，这些页通常来说只会使用一次，并不是活跃的热点数据）</li>
+<li>为了继续优化这种情况，引入了<code>innodb_old_blocks_time</code>的参数，这个表示存放的<code>midpoint</code>的数据等待多久后才会被插入到new列表中</li>
+<li>用户预估自己的活跃热点数据不止<code>5/8</code>记<code>63%</code>，用户可以配置<code>innodb_old_blocks_pct</code>来减少热点页可能被刷出的概率</li>
+</ul>
+</li>
+</ol>
+<p><img src="https://user-images.githubusercontent.com/38010908/65368121-1139ec00-dc6f-11e9-885c-18d7197bcdae.png" alt="image"></p>
+<p>通过命令<code>show engine innodb status</code>观察LRU列表及free列表的使用情况和运行状态</p>
+<blockquote>
+<p>注意： <code>show engine innodb status</code>显示的不是当前状态，而是过去某个时间范围内的状态 <code>Per second averages calculated from the last 57 seconds</code></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; show engine innodb status \G
+*************************** 1. row ***************************
+  Type: InnoDB
+  Name:
+Status:
+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
+2019-09-21 11:30:20 0x7fe7240e4700 INNODB MONITOR OUTPUT
+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
+Per second averages calculated from the last 57 seconds
+-----------------
+BACKGROUND THREAD
+-----------------
+srv_master_thread loops: 22 srv_active, 0 srv_shutdown, 1543541 srv_idle
+srv_master_thread log flush and writes: 1543289
+----------
+SEMAPHORES
+----------
+OS WAIT ARRAY INFO: reservation count 81
+OS WAIT ARRAY INFO: signal count 69
+RW-shared spins 0, rounds 40, OS waits 22
+RW-excl spins 0, rounds 150, OS waits 5
+RW-sx spins 0, rounds 0, OS waits 0
+Spin rounds per wait: 40.00 RW-shared, 150.00 RW-excl, 0.00 RW-sx
+------------
+TRANSACTIONS
+------------
+Trx id counter 2900
+Purge done for trx&#39;s n:o &lt; 2893 undo n:o &lt; 0 state: running but idle
+History list length 13
+LIST OF TRANSACTIONS FOR EACH SESSION:
+---TRANSACTION 422105999083360, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+--------
+FILE I&#x2F;O
+--------
+I&#x2F;O thread 0 state: waiting for completed aio requests (insert buffer thread)
+I&#x2F;O thread 1 state: waiting for completed aio requests (log thread)
+I&#x2F;O thread 2 state: waiting for completed aio requests (read thread)
+I&#x2F;O thread 3 state: waiting for completed aio requests (read thread)
+I&#x2F;O thread 4 state: waiting for completed aio requests (read thread)
+I&#x2F;O thread 5 state: waiting for completed aio requests (read thread)
+I&#x2F;O thread 6 state: waiting for completed aio requests (write thread)
+I&#x2F;O thread 7 state: waiting for completed aio requests (write thread)
+I&#x2F;O thread 8 state: waiting for completed aio requests (write thread)
+I&#x2F;O thread 9 state: waiting for completed aio requests (write thread)
+Pending normal aio reads: [0, 0, 0, 0] , aio writes: [0, 0, 0, 0] ,
+ ibuf aio reads:, log i&#x2F;o&#39;s:, sync i&#x2F;o&#39;s:
+Pending flushes (fsync) log: 0; buffer pool: 0
+486 OS file reads, 367 OS file writes, 75 OS fsyncs
+0.00 reads&#x2F;s, 0 avg bytes&#x2F;read, 0.00 writes&#x2F;s, 0.00 fsyncs&#x2F;s
+-------------------------------------
+INSERT BUFFER AND ADAPTIVE HASH INDEX
+-------------------------------------
+Ibuf: size 1, free list len 0, seg size 2, 0 merges
+merged operations:
+ insert 0, delete mark 0, delete 0
+discarded operations:
+ insert 0, delete mark 0, delete 0
+Hash table size 34679, node heap has 0 buffer(s)
+Hash table size 34679, node heap has 0 buffer(s)
+Hash table size 34679, node heap has 0 buffer(s)
+Hash table size 34679, node heap has 0 buffer(s)
+Hash table size 34679, node heap has 0 buffer(s)
+Hash table size 34679, node heap has 0 buffer(s)
+Hash table size 34679, node heap has 0 buffer(s)
+Hash table size 34679, node heap has 0 buffer(s)
+0.00 hash searches&#x2F;s, 0.00 non-hash searches&#x2F;s
+---
+LOG
+---
+Log sequence number 13028166
+Log flushed up to   13028166
+Pages flushed up to 13028166
+Last checkpoint at  13028157
+0 pending log flushes, 0 pending chkp writes
+42 log i&#x2F;o&#39;s done, 0.00 log i&#x2F;o&#39;s&#x2F;second
+----------------------
+BUFFER POOL AND MEMORY
+----------------------
+Total large memory allocated 137428992
+Dictionary memory allocated 227368
+Buffer pool size   8192 # 这个是页为单位，一页有16kb，所以bufferPool大小为8192*16k，即128MB
+Free buffers       7680 # 当前free列表中页的数量
+Database pages     512 # LRU列表中页的数量
+Old database pages 209
+Modified db pages  0 # 表示脏页的数量
+Pending reads      0
+Pending writes: LRU 0, flush list 0, single page 0
+Pages made young 0, not young 0 # 显示LRU列表中页移动到前端的次数，因为没改变
+0.00 youngs&#x2F;s, 0.00 non-youngs&#x2F;s
+Pages read 439, created 73, written 298
+0.00 reads&#x2F;s, 0.00 creates&#x2F;s, 0.00 writes&#x2F;s
+No buffer pool page gets since the last printout
+Pages read ahead 0.00&#x2F;s, evicted without access 0.00&#x2F;s, Random read ahead 0.00&#x2F;s
+LRU len: 512, unzip_LRU len: 0
+I&#x2F;O sum[0]:cur[0], unzip sum[0]:cur[0]
+--------------
+ROW OPERATIONS
+--------------
+0 queries inside InnoDB, 0 queries in queue
+0 read views open inside InnoDB
+Process ID&#x3D;1, Main thread ID&#x3D;140630651041536, state: sleeping
+Number of rows inserted 4323, updated 0, deleted 0, read 7372
+0.00 inserts&#x2F;s, 0.00 updates&#x2F;s, 0.00 deletes&#x2F;s, 0.00 reads&#x2F;s
+----------------------------
+END OF INNODB MONITOR OUTPUT
+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
+
+1 row in set (0.29 sec)
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>不知道为什么上面的没看到<code>buffer pool hit rate</code>数据，这个表示缓冲池命中率，该值通常不该小于95%。若发生小于95%的情况，就需要观察是否由于全表扫描引起的LRU列表被污染的问题</p>
+</blockquote>
+<p>可以通过如下命令查看缓冲池的运行状态</p>
+<pre class="line-numbers language-none"><code class="language-none">select pool_id,hit_rate,pages_made_young,pages_not_made_young from information_schema.INNODB_BUFFER_POOL_STATS\G
+
+*************************** 1. row ***************************
+             pool_id: 0
+            hit_rate: 0
+    pages_made_young: 0
+pages_not_made_young: 0
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="压缩页"><a href="#压缩页" class="headerlink" title="压缩页"></a>压缩页</h3><p>从这里看到<code>LRU len: 512, unzip_LRU len: 0</code>有一个<code>unzip_LRU</code>的东西，是个表示压缩页的LRU。</p>
+<p>问题： 对于压缩页的表，每个表的压缩比率可能各不相同，可能存在有的表页大小为8kb，有的大小为2kb的情况。那么<code>unzip_LRU</code>是怎样从缓冲池中分配内存的呢？</p>
+<p>首先在unzip_LRU列表中对不同压缩页大小的页进行分别管理，其次通过伙伴算法进行内存的分配。比如对需要从缓冲池中申请页为4kb的大小，过程如下</p>
+<ol>
+<li>检查4kb的unzip_LRU列表，检查是否有可用的空闲页</li>
+<li>若有，直接使用</li>
+<li>否则，检查8kb的unzip_LRU列表</li>
+<li>若能够得到空闲页，将页分成2个4kb页，存放到4kb的unzip_LRU列表</li>
+<li>若不能地到空闲页，从LRU列表中申请一个16KB的页，将页分为1个8kb，2个4kb，再分别放到对应的unzip_LRU列表中</li>
+</ol>
+<h3 id="重做日志缓冲"><a href="#重做日志缓冲" class="headerlink" title="重做日志缓冲"></a>重做日志缓冲</h3><p>一般不需要设置的很大，每一秒钟会将日志缓冲刷新到日志文件中，一般用户只需确保每秒产生的事务在这个缓冲大小内即可。<br>该值可由配置参数<code>innodb_log_buffer_size</code>配置，默认为8m。<br>下列三种情况下会将重做日志缓冲中的内容刷新到外部磁盘的重做日志中</p>
+<ul>
+<li>master thread 每一秒将重做日志刷新到日志文件中</li>
+<li>每个事务提交时将重做日志缓冲刷新到重做日志文件</li>
+<li>当重做日志缓冲池剩余空间小于1/2时，重做日志缓冲刷新到日志文件中</li>
+</ul>
+<h3 id="额外的内存池"><a href="#额外的内存池" class="headerlink" title="额外的内存池"></a>额外的内存池</h3><p>缓冲池的分配，及其管理缓冲池的一些数据结构都需要从额外内存池中申请，因此当申请了很大的innodb缓冲池的时候，也应当考虑相应地增加这个值</p>
+<h3 id="Checkpoint技术"><a href="#Checkpoint技术" class="headerlink" title="Checkpoint技术"></a>Checkpoint技术</h3><blockquote>
+<p>当前事务数据库普遍采用了write ahead log 策略，当事务提交时，先写重做日志，再修改页。但发生宕机而导致数据丢失时，通过重做日志完成数据的回复。这也是事务ACID中D（durability持久性）的要求</p>
+</blockquote>
+<p>checkpoint（检查点）的技术目的时解决以下几个问题</p>
+<ul>
+<li>缩短数据库的恢复时间</li>
+<li>缓冲池不够用时，将脏页刷新到磁盘</li>
+<li>重做日志不可用时，刷新脏页</li>
+</ul>
+<p>在innodb引擎内部，有两种checkpoint</p>
+<ul>
+<li><p>sharp checkpoint(发生在数据库关闭时，将所有的脏页都刷新会磁盘，这是默认的工作方式)</p>
+</li>
+<li><p>fuzzy checkpoint(使用的这个，只刷新部分脏页)</p>
+<ul>
+<li><p>Master Thread Checkpoint (差不多以每秒或每十秒从缓冲池的脏页列表异步刷新一定比例的脏页到磁盘)</p>
+</li>
+<li><p>FLUSH_LRU_LIST Checkpoint (保证LRU中有指定数量的空闲页，后面版本在Page Cleaner线程中执行)</p>
+</li>
+<li><p>Async/Sync Flush Checkpoint(当重做日志文件不可用的情况下，需要强制将一些页刷新回磁盘，此时脏页是从脏页列表中取得，为了保证重做日志的循环使用的可用性)</p>
+<blockquote>
+<p>主要有3个参数,  写入到重做日志记为<code>redo_lsn</code>，已经刷新到磁盘最新页为<code>checkpoint_lsn</code><br>checkpoint_age = redo_lsn - checkpoint_lsn<br>async_water_mark = 75% * total_redo_log_file_size<br>sync_water_mark = 90% * total_redo_log_file_size  </p>
+</blockquote>
+</li>
+<li><p>Dirty Page too much Checkpoint(脏页数量太多，导致innodb存储引擎强制进行checkpoint，为了保证缓冲池中有足够可用的页，可由参数<code>innodb_max_dirty_pages_pct</code>控制，默认的值为<code>75</code>，意思是脏页数量占75%的时候会强制执行)</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Mater-Thread工作方式"><a href="#Mater-Thread工作方式" class="headerlink" title="Mater Thread工作方式"></a>Mater Thread工作方式</h2><p>MasterThread具有最高的线程优先级别，内部有多个循环，master thread会根据数据库运行的状态在如下循环中切换</p>
+<ul>
+<li>主循环(loop)</li>
+<li>后台循环(backgroup loop)</li>
+<li>刷新循环(flush loop)</li>
+<li>暂停循环(suspend loop)</li>
+</ul>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/09/24/mysql-features/">
+        Previous post<br>mysql-特性
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/08/27/juc-aqs/">
+        Next post<br>juc-aqs
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?80510273"></script>
+
+
+
+</body>
+</html>

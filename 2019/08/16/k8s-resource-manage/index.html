@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>k8s集群资源管理 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="NodeNode是kubernetes集群的工作节点，可以是物理机也可以是虚拟机。
+Node的状态kubectl ...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?66044300">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    k8s集群资源管理
+                    <div class="post-meta">
+                        <time datetime="2019-08-16T06:36:39.000Z" itemprop="datePublished">
+                            2019-08-16 14:36
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/k8s/'>k8s</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h2 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h2><p>Node是kubernetes集群的工作节点，可以是物理机也可以是虚拟机。</p>
+<h3 id="Node的状态"><a href="#Node的状态" class="headerlink" title="Node的状态"></a>Node的状态</h3><pre class="line-numbers language-none"><code class="language-none">kubectl describe nodes<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="Node的管理"><a href="#Node的管理" class="headerlink" title="Node的管理"></a>Node的管理</h3><p>禁止pod调度到该节点上</p>
+<pre class="line-numbers language-none"><code class="language-none">kubectl cordon &lt;node&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<hr>
+<p>驱逐该节点上的所有pod</p>
+<pre class="line-numbers language-none"><code class="language-none">kubectl drain &lt;node&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<blockquote>
+<p>该命令会删除该节点上的所有Pod（DaemonSet除外），在其他node上重新启动它们，通常该节点需要维护时使用该命令。直接使用该命令会自动调用kubectl cordon <node>命令。当该节点维护完成，启动了kubelet后，再使用kubectl uncordon <node>即可将该节点添加到kubernetes集群中。</p>
+</blockquote>
+<h2 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h2><p>区分环境</p>
+<pre class="line-numbers language-none"><code class="language-none">kubectl get ns<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="Label"><a href="#Label" class="headerlink" title="Label"></a>Label</h2><p>label是个键值对，对系统本身没什么含义，只是对用户才有意义</p>
+<pre class="line-numbers language-none"><code class="language-none">- labels
+    - key1: value1
+    - key2: value2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>不要在label中使用大型、非标识的结构化数据，记录这样的数据应该用annotation。</p>
+</blockquote>
+<h3 id="Label-Selector"><a href="#Label-Selector" class="headerlink" title="Label Selector"></a>Label Selector</h3><p>Label不是唯一的，很多object可能有相同的label。</p>
+<p>通过label selector，客户端／用户可以指定一个object集合，通过label selector对object的集合进行操作。</p>
+<p>Label selector有两种类型：</p>
+<ul>
+<li>equality-based ：可以使用=、==、!=操作符，可以使用逗号分隔多个表达式</li>
+<li>set-based ：可以使用in、notin、!操作符，另外还可以没有操作符，直接写出某个label的key，表示过滤有某个key的object而不管该key的value是何值，!表示没有该label的object</li>
+</ul>
+<p>示例</p>
+<pre class="line-numbers language-none"><code class="language-none">$ kubectl get pods -l environment&#x3D;production,tier&#x3D;frontend
+$ kubectl get pods -l &#39;environment in (production),tier in (frontend)&#39;
+$ kubectl get pods -l &#39;environment in (production, qa)&#39;
+$ kubectl get pods -l &#39;environment,environment notin (frontend)&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在API object中设置label selector</p>
+<p>要注意的一点是，部分object不支持set-based操作,比如<code>service</code>,<code>replicationcontroller</code></p>
+<pre class="line-numbers language-none"><code class="language-none">selector:
+    component: redis<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>而在<code>Job</code>,<code>Deployment</code>,<code>ReplicaSet</code>,<code>DaemonSet</code>这些object则支持</p>
+<pre class="line-numbers language-none"><code class="language-none">selector:
+  matchLabels:
+    component: redis
+  matchExpressions:
+    - &#123;key: tier, operator: In, values: [cache]&#125;
+    - &#123;key: environment, operator: NotIn, values: [dev]&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="Annotation"><a href="#Annotation" class="headerlink" title="Annotation"></a>Annotation</h3><blockquote>
+<p>Annotation可以将Kubernetes资源对象关联到任意的非标识性元数据。使用客户端（如工具和库）可以检索到这些元数据。</p>
+</blockquote>
+<p>以下列出了一些可以记录在 annotation 中的对象信息：</p>
+<ul>
+<li>声明配置层管理的字段。使用annotation关联这类字段可以用于区分以下几种配置来源：客户端或服务器设置的默认值，自动生成的字段或自动生成的 auto-scaling 和 auto-sizing 系统配置的字段。</li>
+<li>创建信息、版本信息或镜像信息。例如时间戳、版本号、git分支、PR序号、镜像哈希值以及仓库地址。</li>
+<li>记录日志、监控、分析或审计存储仓库的指针</li>
+<li>可以用于debug的客户端（库或工具）信息，例如名称、版本和创建信息。</li>
+<li>用户信息，以及工具或系统来源信息、例如来自非Kubernetes生态的相关对象的URL信息。</li>
+<li>轻量级部署工具元数据，例如配置或检查点。</li>
+<li>负责人的电话或联系方式，或能找到相关信息的目录条目信息，例如团队网站。</li>
+</ul>
+<h3 id="Taint和Toleration（污点和容忍）"><a href="#Taint和Toleration（污点和容忍）" class="headerlink" title="Taint和Toleration（污点和容忍）"></a>Taint和Toleration（污点和容忍）</h3><p>节点可以有一个或多个taint，对于不能容忍那些taint的pod是不会被调度到那些nodes上的。如果将toleration应用于pod上，则表示这些pod可以被调度到具有相应taint的节点上</p>
+<p>为node设置taint</p>
+<pre class="line-numbers language-none"><code class="language-none">kubectl taint nodes node1 key1&#x3D;value1:NoSchedule
+kubectl taint nodes node2 key2&#x3D;value2:NoExecute<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>删除taint</p>
+<pre class="line-numbers language-none"><code class="language-none">kubectl taint nodes node1 key1:NoSchedule-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>查看taint</p>
+<pre class="line-numbers language-none"><code class="language-none">kubectl describe nodes node1<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/">详细用法</a></p>
+<p>为pod设置toleration</p>
+<pre class="line-numbers language-none"><code class="language-none">tolerations:
+- key: &quot;key1&quot;
+  operator: &quot;Equal&quot;
+  value: &quot;value1&quot;
+  effect: &quot;NoSchedule&quot;
+- key: &quot;key1&quot;
+  operator: &quot;Equal&quot;
+  value: &quot;value1&quot;
+  effect: &quot;NoExecute&quot;
+- key: &quot;node.alpha.kubernetes.io&#x2F;unreachable&quot;
+  operator: &quot;Exists&quot;
+  effect: &quot;NoExecute&quot;
+  tolerationSeconds: 6000<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ul>
+<li>value 的值可以为 NoSchedule、PreferNoSchedule 或 NoExecute。</li>
+<li>tolerationSeconds 是当 pod 需要被驱逐时，可以继续在 node 上运行的时间。</li>
+</ul>
+<blockquote>
+<p>如果 pod 存在一个 effect 值为 NoExecute 的 toleration 指定了可选属性 tolerationSeconds 的值，则表示在给节点添加了上述 taint 之后，pod 还能继续在节点上运行的时间</p>
+</blockquote>
+<h3 id="垃圾收集"><a href="#垃圾收集" class="headerlink" title="垃圾收集"></a>垃圾收集</h3><blockquote>
+<p>Kubernetes 垃圾收集器的角色是删除指定的对象，这些对象曾经有但以后不再拥有 Owner 了。</p>
+</blockquote>
+<p>Owner会包含一个或多个Dependent(pod)</p>
+<blockquote>
+<p>有时，Kubernetes 会自动设置 ownerReference 的值。例如，当创建一个 ReplicaSet 时，Kubernetes 自动设置 ReplicaSet 中每个 Pod 的 ownerReference 字段值。在 1.6 版本，Kubernetes 会自动为一些对象设置 ownerReference 的值，这些对象是由 ReplicationController、ReplicaSet、StatefulSet、DaemonSet 和 Deployment 所创建或管理。</p>
+</blockquote>
+<blockquote>
+<p>也可以通过手动设置 ownerReference 的值，来指定 Owner 和 Dependent 之间的关系。</p>
+</blockquote>
+<p>控制垃圾收集器删除Dependent有三种策略</p>
+<ul>
+<li>background<br>在 background 级联删除 模式下，Kubernetes 会立即删除 Owner 对象，然后垃圾收集器会在后台删除这些 Dependent。</li>
+<li>foreground<br>删除了所有”blocking”的dependent之后再立刻删除owner</li>
+<li>orphan(孤儿)<br>就是只删除owner，dependent就不管了</li>
+</ul>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/08/16/k8s-controller/">
+        Previous post<br>k8s控制器
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/06/18/learn-kafka-01/">
+        Next post<br>kafka学习
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?41892766"></script>
+
+
+
+</body>
+</html>

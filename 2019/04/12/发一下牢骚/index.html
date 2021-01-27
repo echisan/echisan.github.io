@@ -1,0 +1,251 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>发一下牢骚 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="为什么因为人总有压力，总有烦心事，一直憋着也不是什么好事，但是说了出来也不见得不是坏事。但是结果还是说出来了，为什...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?64831828">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    发一下牢骚
+                    <div class="post-meta">
+                        <time datetime="2019-04-12T10:35:09.000Z" itemprop="datePublished">
+                            2019-04-12 18:35
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/牢骚/'>牢骚</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>因为人总有压力，总有烦心事，一直憋着也不是什么好事，但是说了出来也不见得不是坏事。<br>但是结果还是说出来了，为什么，因为真的觉得这样的行为很讨厌。看着别人过得不好，自己倒是在岸上了觉得很偷税？</p>
+<h3 id="什么人"><a href="#什么人" class="headerlink" title="什么人"></a>什么人</h3><p>不知道有没有人遇到过这样一种人，干什么都偷偷摸摸，也不是些什么奇怪的事情。就比如我有个同学跟我说过，他有个室友是这样的，自己偷偷把作业写完了，然后有人问他有什么作业做，他会说我也不知道。<br><img src="/images/???.jpg" alt="???"></p>
+<p>这。。。大概是这么一种感觉，看着你在为着作业问题焦头烂额的时候，自己也不说自己的情况，跟着在那里喊”有什么作业做呀，有没有人说做什么作业呀”，我透，难道这感觉真的这么爽？虽然这么想着好想还有点意思（？）</p>
+<p>不知道怎么定义这类人呢，很好奇。</p>
+<h2 id="自身原因"><a href="#自身原因" class="headerlink" title="自身原因"></a>自身原因</h2><p>现在可能是内忧外患了，哈哈，如果仅仅是外患的话我可能也是没什么感觉的。之前不是有个新闻嘛，有个人天天加班，然后骑自行车还被交警抓到，然后崩溃摔手机的。压力谁都有，就是到了临界点总会崩溃的，早一点爆发出来可能好一点233<br>因为爆发出来的伤害是给对方造成的，崩溃才是自己的事。</p>
+<p>感觉是因为自己找工作不顺利，压力也大，到最后还是不如意。结果呢，这时候，有个人就跟你有个结果差不多的人，找工作也没怎么顺不顺利的说法，只是面了几个而已吧，就待遇跟我现在这辣鸡差不多。然后就跟我互动工作累呀工资低呀啥的，不想干了啥的，不过想一下上面我写的那一类人，简直细思极恐好吧。<br>感觉收到我人生以来等级最高的嘲讽，明明自己有一个更加光明的未来。</p>
+<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><h3 id="对方"><a href="#对方" class="headerlink" title="对方"></a>对方</h3><p>不知道对方是什么感觉，反正我最后说的一段话他是看到了我觉得，可能被我说中了吧。</p>
+<h3 id="我"><a href="#我" class="headerlink" title="我"></a>我</h3><p>本来，对方怎么样跟我没有任何关系，但是一些行为真的，到底是为什么，真的想不通。</p>
+<p>凡事有起因也会有结果，之后关系会怎么样我不知道，本来我可以什么都不说的，就静静的看着他装b<br>但是我这性格就这样，忍不住了，说出来也好，不想看装逼了，看吐了，我透</p>
+<p>以上。</p>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/04/15/%E6%9C%AA%E6%9D%A5%E4%B8%80%E4%BA%9B%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/">
+        Previous post<br>未来一些学习计划
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/04/11/hello-hexo/">
+        Next post<br>hello-hexo
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?14907669"></script>
+
+
+
+</body>
+</html>

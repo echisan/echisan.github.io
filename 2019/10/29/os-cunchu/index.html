@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>操作系统-存储器管理 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="主存储器与寄存器
+主存储器
+
+简称内存或主存。
+
+寄存器
+
+寄存器具有与处理机相同的速度，完全能与CPU协调工作。...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?83908968">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    操作系统-存储器管理
+                    <div class="post-meta">
+                        <time datetime="2019-10-29T02:09:17.000Z" itemprop="datePublished">
+                            2019-10-29 10:09
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/操作系统/'>操作系统</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h2 id="主存储器与寄存器"><a href="#主存储器与寄存器" class="headerlink" title="主存储器与寄存器"></a>主存储器与寄存器</h2><ol>
+<li>主存储器</li>
+</ol>
+<p>简称内存或主存。</p>
+<ol start="2">
+<li>寄存器</li>
+</ol>
+<p>寄存器具有与处理机相同的速度，完全能与CPU协调工作。</p>
+<h2 id="程序的装入和连接"><a href="#程序的装入和连接" class="headerlink" title="程序的装入和连接"></a>程序的装入和连接</h2><p>用户程序要在系统中运行，必须先将它装入内存，然后再将其转变为一个可以执行的程序，通常要经过一以下几个步骤。</p>
+<ol>
+<li>编译，由编译程序(Compiler)对用户源程序进行编译，形成若干个目标模块(Object Module)</li>
+<li>链接，由链接程序(Linker)将编译后形成的一组目标模块以及它们所需要的库函数链接在一起，形成一个完整的装入模块(Load Module);</li>
+<li>装入，由装入程序(Loader)将装入模块装入内存</li>
+</ol>
+<p><img src="https://user-images.githubusercontent.com/38010908/67143611-be6c4800-f29f-11e9-87a2-de71d1eaad5c.png" alt="image"></p>
+<h2 id="对换Swapping"><a href="#对换Swapping" class="headerlink" title="对换Swapping"></a>对换Swapping</h2><p><strong>对换的类型</strong><br>每次对换时，都是将一定数量的程序或数据换入或还出内存。根据每次对换时所对换的数量，可将对换分为如下两类：</p>
+<ol>
+<li>整体对换。</li>
+<li>页面(分段)对换。对换的是进程的一个“页面”或“分段”为单位进行的。</li>
+</ol>
+<h3 id="对换空间的管理"><a href="#对换空间的管理" class="headerlink" title="对换空间的管理"></a>对换空间的管理</h3><h3 id="进程的换出与换入"><a href="#进程的换出与换入" class="headerlink" title="进程的换出与换入"></a>进程的换出与换入</h3><ol>
+<li><strong>进程的换出</strong><ol>
+<li>选择被换出的进程。会检查所有驻留在内存中的进程，首先选择处于阻塞或随眠状态的进程，当有多个这样的进程时，应当选择优先级最低的进程作为换出进程。如果系统中已无阻塞进程，而现在的内存空间仍不足以需要，会选择将优先级最低的就绪进程换出。</li>
+<li>进程换出过程。在对换换出时，只能换出非共享的程序和数据段，对于那些共享的程序和数据段，只要有进程需要它，就不能被换出。在进行换出时，应先对申请对换空间，若申请成功，就启动磁盘，将该进程的程序和数据传送到磁盘的对换区上。若传送过程未出现错误，便可回收该进程所占用的内存空间，并对该进程的进程控制块和内存分配表等数据结构做对应的修改。若此时内存中还有可换出的进程，则继续执行换出过程，知道内存中再无阻塞进程为止。</li>
+</ol>
+</li>
+<li><strong>进程的换入</strong><br>先检查PCB集合中所有进程的状态，从中找出“就绪”状态但已换出的进程。当有许多这样的进程时，它将选择其中已换出到磁盘上时间最久的进程作为换入进程，为它申请内存。如果申请成功则直接将进程从外存调入内存，如果失败，则需先将内存中的某些进程换出，腾出足够的内存空间，再将进程调入。</li>
+</ol>
+<h3 id="分页存储管理方式"><a href="#分页存储管理方式" class="headerlink" title="分页存储管理方式"></a>分页存储管理方式</h3><p>根据在离散分配时所分配地址空间的基本单位不同，又可将离散分配分为以下三种：</p>
+<ol>
+<li>分页存储管理方式。将用户程序地址空间分为若干个固定大小的区域，称为“页”或“页面”。</li>
+<li>分段存储管理方式。将用户程序的地址空间分为若干个大小不同的段，每段可定义一组相对完整的信息。</li>
+<li>段页式存储管理方式。将上述两种方式相结合，同时具有两者的优点。</li>
+</ol>
+<h3 id="地址变换机构"><a href="#地址变换机构" class="headerlink" title="地址变换机构"></a>地址变换机构</h3><p>地址变换机构的任务实际上只是将逻辑地址中的页号转换为内存中的物理块号。</p>
+<h4 id="基本的地址变换机构"><a href="#基本的地址变换机构" class="headerlink" title="基本的地址变换机构"></a>基本的地址变换机构</h4><p>当进程要访问某个逻辑地址中的数据时，分为以下几个步骤</p>
+<ol>
+<li>分页地址变换机构自动将有效地址(相对地址)分为页号和页内地址两部分</li>
+<li>对页号与页表长度进行比较，如果页号大于或等于页表长度，则表示本次所访问的地址已超越进程的地址空间</li>
+<li>若为出现越界错误，将页表始址与页号和页表项长度的乘积相加，便得到该表项在页表中的位置</li>
+<li>然后得到该页的物理块号，将之装入物理地址寄存器的块内地址字段中</li>
+</ol>
+<p><img src="https://user-images.githubusercontent.com/38010908/67351335-d8e44100-f57f-11e9-9129-55d6f650c5a9.png" alt="image"></p>
+<h4 id="具有快表的地址变换机构"><a href="#具有快表的地址变换机构" class="headerlink" title="具有快表的地址变换机构"></a>具有快表的地址变换机构</h4><p>其实就是一个缓存而已。</p>
+<p>高速的寄存器，称为“联想寄存器”或“快表”，这个寄存器具备并行查寻能力。  </p>
+<p>当cpu给出有效地址后，将该地址送入联想寄存器即快表，若能直接找到对应的物理地址，直接送入物理地址寄存器中，如果未找到，再到内存中查找，送入物理内存寄存器的同时再将此有效地址跟物理地址的映射存到快表中。如果此时快表已满，则OS必须找到一个老且认为已经不再需要的页表项，将它换出。</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/67352190-eb5f7a00-f581-11e9-9acd-1b31149ab6c7.png" alt="image"></p>
+<p>由于成本关系，快表不可能做的很大，通常只存放16-512个页表项。</p>
+<h2 id="分段存储管理方式"><a href="#分段存储管理方式" class="headerlink" title="分段存储管理方式"></a>分段存储管理方式</h2>
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/10/29/os-page-replace-algorithm/">
+        Previous post<br>操作系统-页面置换算法
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/10/17/os-process-thread/">
+        Next post<br>操作系统-进程线程
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?26526183"></script>
+
+
+
+</body>
+</html>

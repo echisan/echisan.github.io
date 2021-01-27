@@ -1,0 +1,497 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>操作系统-进程 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="进程为了提高资源利用率和系统吞吐量，通常采用多道程序技术，将多个程序同时装进内存，并使之并发运行，此时作为资源分配...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?98483018">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    操作系统-进程
+                    <div class="post-meta">
+                        <time datetime="2019-10-11T03:21:29.000Z" itemprop="datePublished">
+                            2019-10-11 11:21
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/操作系统/'>操作系统</a>, 
+                        
+                        <a href='/tags/进程/'>进程</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h1 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h1><p>为了提高资源利用率和系统吞吐量，通常采用多道程序技术，将多个程序同时装进内存，并使之并发运行，此时作为资源分配和独立运行的基本单位都是进程。</p>
+<h2 id="程序并发执行时的特征"><a href="#程序并发执行时的特征" class="headerlink" title="程序并发执行时的特征"></a>程序并发执行时的特征</h2><ul>
+<li>间断性。程序在并发时，由于它们共享系统资源，以及为完成同一项任务而相互合作，致使这些并发成执行的程序之间形成了相互制约的关系。相互制约将导致并发程序具有“执行——暂停——执行”这种间断性的活动规律</li>
+<li>失去封闭性。</li>
+<li>不可再现性</li>
+</ul>
+<h2 id="进程的描述"><a href="#进程的描述" class="headerlink" title="进程的描述"></a>进程的描述</h2><p>为了使参与并发执行的每个程序(含数据)都能独立地运行，操作系统中必须为止配置一个专门的数据结构，称为进程控制块(Process Control Block, PCB)。系统利用PCB来描述进程的基本情况和活动过程，进而控制和管理进程。</p>
+<blockquote>
+<p>一般情况下，我们把进程实体就简称为进程，例如，所谓创建进程，实质上是创建进程实体中的PCB；而撤销进程，实质上是撤销进程的PCB。</p>
+</blockquote>
+<p>较为典型的进程定义：</p>
+<ol>
+<li>进程是程序的一次执行</li>
+<li>进程是一个程序及其数据在处理机上顺序执行时所发生的活动</li>
+<li>进程是具有独立功能的程序在一个数据集合上运行的过程，它是系统进行资源分配和调度的一个独立单位</li>
+</ol>
+<p>进程的特征</p>
+<ol>
+<li>动态性。进程的实质是进程实体的执行过程，因此，动态性是进程的最基本特征。动态性还表现在“它由创建而产生，由调度而执行，由撤销而消亡”，可见进程实体具有一定的生命周期。</li>
+<li>并发性。是指多个进程实体同存于内存中，且能在一段时间内同时运行。</li>
+<li>独立性。实体是一个能独立运行、独立获得资源和独立接受调度的基本单位。凡未建立PCB的程序都不能作为一个独立的单位参与运行</li>
+<li>异步性。是指进程是按异步方式运行的，即按各自独立的、不可预知</li>
+</ol>
+<h2 id="进程的基本状态及转换"><a href="#进程的基本状态及转换" class="headerlink" title="进程的基本状态及转换"></a>进程的基本状态及转换</h2><p>由于多个进程在并发时共享系统资源，致使它们在运行过程中呈现间断性的运行规律，所以进程在其生命周期内可能具有多种状态。一般而言，每一个进程至少应处以下三种基本状态之一</p>
+<ol>
+<li>就绪(Ready)状态。指这些进程已处于准备好运行的状态，即进程已分配除CPU意外的所有必要资源后，只要再获得CPU便可立即执行。</li>
+<li>执行(Running)状态。指进程以获得CPU，其程序正在执行的状态。</li>
+<li>阻塞(Block)状态。这是指正在执行的进程由于发生某事件(如I/O请求、申请缓冲区失败等)暂时无法继续执行的状态，亦即进程的执行收到阻塞。</li>
+</ol>
+<h3 id="三种基本状态转换"><a href="#三种基本状态转换" class="headerlink" title="三种基本状态转换"></a>三种基本状态转换</h3><p><img src="https://user-images.githubusercontent.com/38010908/66402828-17beb680-ea18-11e9-8714-d4da0eaea79e.png" alt="image"></p>
+<h3 id="创建状态和终止状态"><a href="#创建状态和终止状态" class="headerlink" title="创建状态和终止状态"></a>创建状态和终止状态</h3><p>为了满足进程控制块对数据及操作的完整性要求以及增强管理的灵活性，通常在系统中又为进程引入两种常见的状态：创建状态和终止状态。</p>
+<ol>
+<li>创建状态<br>如果因为资源不足等情况，创建该进程的资源不能地到满足，如系统无足够的内存使进程无法装入其中，此时创建工作尚未完成，进程不能被调度运行，于是把此时进程所在的状态称为创建状态</li>
+<li>终止状态<br>进程的终止也要分两个步骤：首先是等待操作系统进行善后处理，最后将其PCB清零，并将PCB空间返还给系统。当一个进程被各种情况终止了，它将进入终止状态。进入终止状态的进程以后不能再执行，但在操作系统中依然保留一个记录，保存状态码和一些计时统计数据，供其他进程收集，一旦其他进程完成了对其信息的提取之后，操作系统将删除该进程，将PCB清零并将该空白的PCB返还给操作系统。</li>
+</ol>
+<p>进程五种基本状态及转换</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/66403599-6d479300-ea19-11e9-84b1-d70a16b0820c.png" alt="image"></p>
+<h2 id="挂起操作和进程状态的转换"><a href="#挂起操作和进程状态的转换" class="headerlink" title="挂起操作和进程状态的转换"></a>挂起操作和进程状态的转换</h2><p>除了三种基本状态外，还引入了一个对进程重要的操作——挂起操作。当该操作作用于某个进程时，该进程将被挂起，意味着此时进程处于静止状态。如果进程正在执行，它将暂停执行。若原本处于就绪状态，则该进程此时暂不接受调度。与挂起操作对应的操作时激活操作。</p>
+<h3 id="引入原语操作后的三个进程状态的转换"><a href="#引入原语操作后的三个进程状态的转换" class="headerlink" title="引入原语操作后的三个进程状态的转换"></a>引入原语操作后的三个进程状态的转换</h3><ul>
+<li>挂起原语(suspend)</li>
+<li>激活原语(active)</li>
+</ul>
+<p>在上述两个原语操作的作用下，可能发生以下几种状态转换</p>
+<ol>
+<li>活动就绪(Readya) –&gt; 静止就绪(Readys)，当处于readya时，进程可以接受调度，但出于readys时，不再被调度执行</li>
+<li>活动阻塞(Blockeda) –&gt; 静止阻塞(Blockeds)，处于Blockeds状态的进程在其所期待的事件出现后，从静止阻塞(blockeds)变为静止就绪(readys)状态</li>
+<li>静止就绪(readys) –&gt; 活动就绪(readya)，处于readys状态的进程若用激活原语active激活后，该进程转变为readya状态</li>
+<li>静止阻塞(blockeds) –&gt; 活动阻塞(blockeda)，处于blockeds状态的进程若用激活原语active激活后，进程将转变为blockeda状态</li>
+</ol>
+<p><img src="https://user-images.githubusercontent.com/38010908/66405675-0d52eb80-ea1d-11e9-9a79-8851bfad84bb.png" alt="image"></p>
+<h3 id="引入挂起操作后五个进程状态的转换"><a href="#引入挂起操作后五个进程状态的转换" class="headerlink" title="引入挂起操作后五个进程状态的转换"></a>引入挂起操作后五个进程状态的转换</h3><ol>
+<li>NULL –&gt; 创建： 一个新进程产生时，该进程处于创建状态</li>
+<li>活动 –&gt; 活动就绪： 当前系统的性能和内存容量均允许的情况下，完成对进程创建的必要操作后，将状态转换为就绪状态</li>
+<li>创建 –&gt; 静止就绪： 当资源不足以分配给该进程时，主要是主存，系统会将进程状态转为静止就绪状态，被安置在外存，不参与调度，此时进程创建尚未完成</li>
+<li>执行 –&gt; 终止：当进程以任意形式终结时，该进程被转换为终止状态。</li>
+</ol>
+<p><img src="https://user-images.githubusercontent.com/38010908/66406698-a0d8ec00-ea1e-11e9-89ce-ba9a01dc31de.png" alt="image"></p>
+<h2 id="进程管理中的数据结构"><a href="#进程管理中的数据结构" class="headerlink" title="进程管理中的数据结构"></a>进程管理中的数据结构</h2><p>OS管理资源、进程等数据结构一般分为以下四类：内存表、设备表、文件表和用于进程管理的进程表，通常进程表又被称为进程控制块PCB。</p>
+<h3 id="进程控制块PCB的作用"><a href="#进程控制块PCB的作用" class="headerlink" title="进程控制块PCB的作用"></a>进程控制块PCB的作用</h3><p>为了便于系统描述和管理进程的运行，在OS的核心为每个进程专门定义了一个数据结构——进程控制块PCB(Process Control Block)。PCB作为进程实体的一部分，记录了操作系统所需的，用于描述进程的当前情况以及管理进程运行的全部信息，是操作系统中最重要的记录型数据结构。</p>
+<p>PCB具体作用的阐述：</p>
+<ol>
+<li>作为独立运行的基本单位的标志。当一个程序(含数据)配置了PCB后，就表示它已是一个能在多道程序环境下独立运行的、合法的基本单位，也就具有取得OS服务的权利。系统是通过PCB感知进程的存在的，事实上，PCB已成为进程存在于系统中的唯一标志</li>
+<li>能实现间断性运行方式。在多道程序环境下，程序是采用停停走走间断性的运行方式运行的。在有了PCB之后，系统将CPU现场信息保存在被中断的进程的PCB中，供该进程再次被调度执行时恢复CPU现场时使用。</li>
+<li>提供进程管理所需要的信息。当调度程序调度到某进程运行时，该程序所需要的资源信息都需要到PCB中获取。</li>
+<li>提供进程调度所需要的信息。PCB提供了进程处于何种状态的信息，调度需要根据该信息进行调度，比如只有处于就绪状态才能被调度。</li>
+<li>实现与其他进程同步与通信。进程同步机制是用于实现多个进程的协调运行的，在采用信号量机制时，它要求每个进程中都设置有相应的用于同步的信号量。在PCB中还具有用于实现进程通信的区域或通信队列指针等。</li>
+</ol>
+<p>进程控制块PCB的组织方式  </p>
+<ol>
+<li>线性方式</li>
+<li>链接方式</li>
+<li>索引方式</li>
+</ol>
+<h2 id="进程控制"><a href="#进程控制" class="headerlink" title="进程控制"></a>进程控制</h2><p>进程控制一般是由内核中的原语来实现的。</p>
+<h3 id="进程的阻塞与唤醒"><a href="#进程的阻塞与唤醒" class="headerlink" title="进程的阻塞与唤醒"></a>进程的阻塞与唤醒</h3><p>引起进程阻塞和唤醒的时间</p>
+<ol>
+<li>向系统请求共享资源失败</li>
+<li>等待某种操作的完成。比如等待某I/O设备完成指定的任务，该进程才能继续执行，则该进程在启动了I/O设备之后就自动进入阻塞状态了。</li>
+<li>新数据尚未到达。对于相互合作的进程，如果一个进程需要先获得另一进程提供的数据后才能对该数据进行处理，只要其所需数据尚未到达，进程便只有阻塞。</li>
+<li>等待新任务的到达。</li>
+</ol>
+<p>进程的阻塞过程<br>正在执行的进程，如果发生了上述某时间，进程便通过调用阻塞原语block将自己阻塞。可见阻塞是进程自身的一种主动行为。<br>进入阻塞的过程</p>
+<blockquote>
+<p>调用block –&gt; 将PCB状态改为阻塞 –&gt; 将PCB插入阻塞队列</p>
+</blockquote>
+<p>进程唤醒过程<br>当被阻塞进程所期待的事情发生时，比如它所启动的I/O操作已完成，或其所期待的数据已经到达，则由有关进程(不如提供数据的进程)调用唤醒原语<code>wakeup</code>，将等待该事件的进程唤醒。<br>被唤醒的过程  </p>
+<blockquote>
+<p>将被阻塞的进程从等待该事件的阻塞队列中移出 –&gt; 将PCB状态改为就绪 –&gt; 将该PCB插入到就绪队列中</p>
+</blockquote>
+<h3 id="进程的挂起与激活"><a href="#进程的挂起与激活" class="headerlink" title="进程的挂起与激活"></a>进程的挂起与激活</h3><p>挂起<br>OS利用挂起原语<code>suspend</code>将指定进程或处于阻塞状态的进程挂起。</p>
+<p>激活<br>利用原语<code>active</code>，将指定进程激活。激活原语先将进程从外存调入内存，检查该进程的现行状态，若是静止就绪，将之改为活动就绪。</p>
+<h2 id="进程同步"><a href="#进程同步" class="headerlink" title="进程同步"></a>进程同步</h2><p>单处理机系统中的进程同步机制——硬件同步机制、信号量机制、管程机制等。</p>
+<h3 id="临界区"><a href="#临界区" class="headerlink" title="临界区"></a>临界区</h3><p>每个进程中访问临界资源的那段代码称为临界区。若能保证诸进程互斥地进入自己地临界区，便可实现诸进程对临界资源地互斥访问。<br>为此，每个进程进入临界区之前，应先对欲访问的临界资源进行检查，看它是否正被访问。</p>
+<p>在临界区前面增加一段用于进行检查的代码称为进入区(entry section)，相应的，在临界区后面也要加上一段称为退出区(exit section)的代码。</p>
+<p>一个访问临界资源的循环过程描述如下：</p>
+<pre class="line-numbers language-none"><code class="language-none">while(TRUE)&#123;
+    进入区
+    临界区
+    退出区
+    剩余区
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>所有同步机制应遵循下述四条准则</p>
+<ol>
+<li>空闲让进。当无进程处于临界区时，表明资源处于空闲状态，并允许一个请求立即进入临界区。</li>
+<li>忙则等待。当临界资源被访问时，其他试图进入临界区的进程必须等待。</li>
+<li>有限等待。对要求访问临界资源的进程，应保证在有限时间内能进入自己的临界区，避免“死等”状态。</li>
+<li>让权等待。当进程不能进入自己的临界区时，应立即释放处理机，以避免陷入“忙等”状态。</li>
+</ol>
+<h3 id="硬件同步机制"><a href="#硬件同步机制" class="headerlink" title="硬件同步机制"></a>硬件同步机制</h3><ol>
+<li>关中断<br>进入锁之前关闭中断，那样就确保了只有一个进程在允许，进程无法被调度。有很多缺点：滥用关中断权利可能导致严重后果，关中断时间过长影响系统效率等。</li>
+<li>利用Test-and-Set指令实现互斥<br>这是一种借助一条硬件指令——“测试并建立”指令实现互斥的方法。TS指令一般性描述如下  <pre class="line-numbers language-none"><code class="language-none">boolean TS(boolean *lock)&#123;
+    Boolean old;
+    old &#x3D; *lock;
+    *lock &#x3D; TRUE;
+    return old;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+这条指令的执行过程是不可分割的，即是一条原语。其中lock有两种状态，当为FALSE时表示该资源空闲，当为TRUE时，表示该资源正在被使用</li>
+</ol>
+<p>利用TS指令实现互斥的循环进程结构可描述如下</p>
+<pre class="line-numbers language-none"><code class="language-none">do &#123;
+    &#x2F;&#x2F; ...
+    while TS(&amp;lock); &#x2F;&#x2F; 进入区
+    critical section; &#x2F;&#x2F; 临界区
+    lock :&#x3D; FALSE; &#x2F;&#x2F; 退出区
+    remainder section; &#x2F;&#x2F; 剩余区
+&#125;while(TRUE)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol start="3">
+<li>利用swap指令实现进程互斥</li>
+</ol>
+<p>对换指令</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">void swap(boolean *a, boolean *b)&#123;
+    boolean temp;
+    temp &#x3D; *a;
+    *a &#x3D; *b;
+    *b &#x3D; temp;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>用对换指令可以简单有效地实现互斥，方法是为每个临界资源设置一个全局的布尔变量lock，其初值为false，在每个进程中再利用一个局部布尔变量key。利用swap指令实现进程互斥的循环进程可描述如下：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">do&#123;
+    key&#x3D;TRUE;
+    do&#123;
+        swap(&amp;lock,&amp;key);
+    &#125;while(key!&#x3D;FALSE);
+    &#x2F;&#x2F; 临界区操作;
+    lock&#x3D;FALSE;
+    &#x2F;&#x2F; ...
+&#125; while(TRUE);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="信号量机制"><a href="#信号量机制" class="headerlink" title="信号量机制"></a>信号量机制</h3><ol>
+<li>整形信号量</li>
+</ol>
+<p>整形S仅能通过两个标准的原子操作wait(S)和signal(S)来访问</p>
+<pre class="line-numbers language-none"><code class="language-none">wait(S)&#123;
+    while(S&lt;&#x3D;0);
+    S--;
+&#125;
+signal(S)&#123;
+    S++;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol start="2">
+<li>记录型信号量</li>
+</ol>
+<p>在整型信号量机制中的wait操作，只要是信号量S&lt;=0,就会不断测试，因此该机制并未遵循“让权等待”的准则，处于“忙等”状态。</p>
+<p>记录型信号量机制采取了“让权等待”的策略，会出现多个进程等待访问一个临界资源的情况，为此信号量机制除了用于代表数目的整型变量value外，还应增加一个进程链表指针list，用于链接上述的所有等待进程</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">typedef struct&#123;
+    int value;
+    struct process_controller_block *list;
+&#125;semaphore;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>相应的，wait(S)和signal(S)操作可描述如下:</p>
+<pre class="line-numbers language-none"><code class="language-none">wait(semaphore *S)&#123;
+    S-&gt;value--;
+    if(S-&gt;value&lt;0) block(S-&gt;list);
+&#125;
+
+signal(semaphore *S)&#123;
+    S-&gt;value++;
+    if(S-&gt;value&lt;&#x3D;0) wakeup(S-&gt;list);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>S-&gt;value的初值表示系统中某类资源的数目，对于每次wait操作意味着进程请求一个单位的该类资源，使系统中可供分配的该类资源减少一个，因此S-&gt;value–;当S-&gt;value&lt;0时说明该类资源已分配晚比。<br>因此进程应调用block原语进行自我阻塞，放弃处理机，并进入S-&gt;list中。<br>signal操作表示释放一个单位的资源，将S-&gt;value++，并waitup第一个list中阻塞的进程。</p>
+<ol start="3">
+<li>AND型信号量<br>AND同步机制的基本思想是：将进程在整个运行过程中需要的所有资源，一次性全部地分配给进程，待进程使用完后再一起释放。</li>
+</ol>
+<blockquote>
+<p>对若干个临界资源的分配采取原子操作方式：要么把它请求的资源全部分配到进程，要么一个也不分配。</p>
+</blockquote>
+<p>为此，在wait操作中增加一个“AND”条件，称为AND同步，或称为同时wait操作，S(Simultaneous wait)定义如下</p>
+<pre class="line-numbers language-none"><code class="language-none">Swait(S1,S2,...,Sn)&#123;
+    while(TRUE)&#123;
+        if(Si&gt;&#x3D;1&amp;&amp;...&amp;&amp;Sn&gt;&#x3D;1)&#123;
+            for(i&#x3D;1;i&lt;&#x3D;n;i++) Si--;
+            break;
+        &#125;else&#123;
+            &#x2F;&#x2F; 进入等待队列
+        &#125;
+    &#125;
+&#125;
+
+Ssignal(S1,S2,...,Sn)&#123;
+    while(TRUE)&#123;
+        for(i&#x3D;1;i&lt;&#x3D;n;i++)&#123;
+            Si++;
+            &#x2F;&#x2F; 将所有在等待队列的Si的进程移除
+        &#125;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol start="4">
+<li>信号量集</li>
+</ol>
+<p>对AND信号量机制的扩充，对进所申请的所有资源以及每类资源不同的资源需求量，再一次P、V原语操作中完成申请或释放。进程对信号量Si的测试值不再是1，而是该资源的分配下限指ti，即要求Si&gt;=ti，否则不予分配。进程对该资源的需求值为di，表示资源占用量，进行Si:=Si-di操作。由此形成一般化的“信号量集”机制，对应的Swait、Ssignal格式为：</p>
+<blockquote>
+<p>Si： 表示资源总量<br>ti： 分配资源下限值<br>di： 分配多少</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">Swait(S1,t1,d1,...,Sn,tn,dn);
+Ssignal(S1,t1,...,Sn,tn);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>一般“信号量集”还有下面几种特殊情况</p>
+<ol>
+<li>Swait(S,d,d)，此时在信号量集中只有一个信号量S，但允许它每次申请d个资源，当现有资源少于d时，不与分配</li>
+<li>Swait(S,1,1)，此时信号量退化为一般信号量S(S&gt;1时)或互斥信号量S(S=1)</li>
+<li>Swait(S,1,0)，当S&gt;=1时，允许多个进程进入某特定区，当S变为0后，将阻止任何进程进入特定区，相当于一个可控的开关</li>
+</ol>
+<h3 id="管程机制"><a href="#管程机制" class="headerlink" title="管程机制"></a>管程机制</h3><p><strong>定义</strong><br>代表共享资源的数据结构以及由对该共享数据结构实施操作的一组过程所组成的资源管理程序共同构成了一个操作系统的资源管理模块，称之为管程。<br>管程被请求和释放资源的进程所调用。<br>管程由四部分组成</p>
+<ol>
+<li>管程的名称</li>
+<li>局部于管程的共享数据结构说明</li>
+<li>对该数据结构进行操作的一组过程</li>
+<li>对局部于管程的共享数据设置初始值的语句</li>
+</ol>
+<p>管程的语法描述：</p>
+<pre class="line-numbers language-none"><code class="language-none">&#x2F;&#x2F; 管程名
+Monitor monitor_name &#123;
+    &#x2F;&#x2F; 共享变量说明
+    share variable declarations;
+    &#x2F;&#x2F; 条件变量说明
+    cond declarations;
+    &#x2F;&#x2F; 能被进程调用的过程
+    public:
+    &#x2F;&#x2F; 对数据结构操作的过程
+    void P1(...)&#123;...&#125;
+    void P2(...)&#123;...&#125;
+    &#x2F;&#x2F; ....
+    &#x2F;&#x2F; 管程主体
+    &#123;
+        &#x2F;&#x2F; 初始化代码
+        initialization code;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>管程包含了面向对象的思想，将表征共享资源的数据结构及其对数据结构操作的一组过程，包括同步机制，都集中并封装在一个对象内部，隐藏了实现袭击。</p>
+</blockquote>
+<p>每次只能由一个进程请求管程的过程，从而实现了进程互斥。</p>
+<p>应考虑的一种情况：当一个进程调用了管程，在管程中时被阻塞或挂起，直到阻塞或挂起的原因解除，而在此期间，如果该进程不释放管程，则其它进程无法进入管程，被迫长时间等待。</p>
+<p>为此引入condition，管程中对每个条件变量都须予以说明，形式为: condition x,y；对条件变量的操作也仅为wait和signal，提供了两个操作,x.wait 和 x.signal</p>
+<ul>
+<li>x.wait：当正在调用管程的进程因x条件需要被阻塞或挂起，则调用x.wait将自己插入到x条件的等待队列上，并释放管程，直到x的条件变化。此时其它进程可以使用该管程</li>
+<li>x.signal：正在调用管程的进程发现x条件发生了变化，则调用x.signal，重新启动一个因为x条件被挂起或阻塞的进程，如果有多个这样的进程则挑其中一个，如果没有则继续执行原进程。</li>
+</ul>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/10/15/os-process-sync-problem/">
+        Previous post<br>操作系统-经典进程同步问题
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/10/07/redis-transaction/">
+        Next post<br>redis-事务
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?35513724"></script>
+
+
+
+</body>
+</html>

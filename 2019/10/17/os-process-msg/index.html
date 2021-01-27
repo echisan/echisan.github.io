@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>操作系统-进程通信 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="在进程间要传输大量数据时，应当利用OS提供的高级通信工具，该工具的主要特点是
+
+使用方便。OS隐藏了实现进程通信的...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?87764118">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    操作系统-进程通信
+                    <div class="post-meta">
+                        <time datetime="2019-10-17T02:12:05.000Z" itemprop="datePublished">
+                            2019-10-17 10:12
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/操作系统/'>操作系统</a>, 
+                        
+                        <a href='/tags/进程/'>进程</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <p>在进程间要传输大量数据时，应当利用OS提供的高级通信工具，该工具的主要特点是</p>
+<ul>
+<li>使用方便。OS隐藏了实现进程通信的具体细节，向用户提供了一组用于实现高级通信的命令(原语)，用户可以方便地直接利用它实现进程之间的通信。</li>
+<li>高效地传送数据。用户可以直接利用高级通信命令(原语)高效地传送大量的数据。</li>
+</ul>
+<h2 id="进程通信的类型"><a href="#进程通信的类型" class="headerlink" title="进程通信的类型"></a>进程通信的类型</h2><p>目前，高级通信机制可归为四大类：共享存储器系统、管道通信系统、消息传递系统以及客户机-服务器系统</p>
+<h3 id="共享存储器系统-Shared-Memory-System"><a href="#共享存储器系统-Shared-Memory-System" class="headerlink" title="共享存储器系统(Shared-Memory System)"></a>共享存储器系统(Shared-Memory System)</h3><p>相互通信的进程共享某些数据结构和共享存储区，进程之间能够通过这些空间进行通信。因此，可以分成以下两种类型：</p>
+<ol>
+<li>基于共享数据结构的通信方式。<br> 操作系统提供共享存储器，由程序员负责对公用数据结构的设置以及对进程间同步的处理。这种通信方式仅适于传递相对少量的数据，通信效率低下，属于低级通信。</li>
+<li>基于共享存储区的通信方式。<br> 为了传输大量数据，在内存中划出了一块共享存储区域，诸进程可通过对该共享区的读或写交换信息，实现通信，数据的形式和位置甚至访问控制都是由进程负责，而不是OS。</li>
+</ol>
+<h3 id="管道-pipe-通信系统"><a href="#管道-pipe-通信系统" class="headerlink" title="管道(pipe)通信系统"></a>管道(pipe)通信系统</h3><p>管道，指用于连接一个读进程和一个写进程以实现它们之间通信的一个共享文件，又叫pipe文件。<br>为了协调双方的通信，管道机制必须提供以下三方面的协调能力。</p>
+<ol>
+<li>互斥，当一个进程正在对pipe执行读/写操作时，其它进程必须等待</li>
+<li>同步，指当写(输入)进程把一定数量(如4KB)的数据写入pipe，便睡眠等待，直到读(输出)进程取走数据后再把它唤醒。</li>
+<li>确定对方是否存在，只有确定了对方已存在才能进行通信</li>
+</ol>
+<blockquote>
+<p>怎么感觉有点像go的channel呢</p>
+</blockquote>
+<h3 id="消息传递系统-Message-passing-system"><a href="#消息传递系统-Message-passing-system" class="headerlink" title="消息传递系统(Message passing system)"></a>消息传递系统(Message passing system)</h3><p>该机制中，进程不必借助任何共享存储区或数据结构，而是以格式化的消息(message)为单位，将通信的数据封装在消息中，并利用操作系统提供的一组通信命令(原语)，在进程间进行消息传递，完成进程间的数据交换。</p>
+<p>该机制又可以分为两类：</p>
+<ol>
+<li>直接通信方式，指发送进程利用OS所提供的发送原语，直接把消息发送给目标进程</li>
+<li>间接通信方式，指发送和接收进程，都通过共享中间实体(成为邮箱)的方式进行消息的发送和接收，完成进程间的通信。</li>
+</ol>
+<h3 id="客户机-服务器系统-Client-Server-system"><a href="#客户机-服务器系统-Client-Server-system" class="headerlink" title="客户机-服务器系统(Client-Server-system)"></a>客户机-服务器系统(Client-Server-system)</h3><p>在客户机-服务器系统的通信机制下，在网络环境的各种应用领域已成为当前主流的通信实现机制，主要的实现方法分为三类：套接字、远程过程调用、和远程方法调用</p>
+<ol>
+<li>套接字(Socket)</li>
+</ol>
+<p>套接字可以分为两类</p>
+<ul>
+<li>基于文件型。通信原理类似于前面提到的管道</li>
+<li>基于网络型。</li>
+</ul>
+<ol start="2">
+<li>远程过程调用和远程方法调用</li>
+</ol>
+<p>RPC引入一个存根(stub)的概念：在本地客户端，每个能够独立运行的远程过程都拥有一个客户存根(client stubborn)，本地进程调用远程过程实际是调用该过程关联的存根；与此类似，在每个远程进程所在的服务器端，其所对应的实际可执行进程也存在一个服务器存根(stub)与其关联。本地客户存根与对应的远程服务器存根一般也是处于阻塞状态，等待消息。</p>
+<p>实际上，远程过程调用的主要步骤是：</p>
+<ol>
+<li>本地过程调用者以一般方式调用远程在本地关联的客户存根，传递相应的参数，然后将控制权转移给客户存根；</li>
+<li>客户存根执行，完成包括过程名和调用参数等信息的建立，将控制权转移给本地客户进程；</li>
+<li>本地客户进程完成与服务器的消息传递，将消息发送到远程服务器进程；</li>
+<li>远程服务器进程接收到消息后转入执行，并根据其中的远程过程名找到对应的服务器存根，将消息转给存根；</li>
+<li>该服务器存根接到消息后，由阻塞状态转入执行状态，拆开消息从中取出过程调用的参数，然后以一般方式调用服务器上关联的过程</li>
+<li>在服务器的远程过程运行完毕后，将结果返回给与之关联的服务器存根；</li>
+<li>该服务器存根获得控制权运行，将结果打包为消息，并将控制权转移给远程服务器进程</li>
+<li>远程服务器进程将消息发送回客户端</li>
+<li>本地客户进程接收到消息后，根据其中的过程名将消息存入关联的客户存根，再将控制权转移给客户存根</li>
+<li>客户存根从消息中取出结果，返回给本地调用者进程，并完成控制权的转移</li>
+</ol>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/10/17/os-process-thread/">
+        Previous post<br>操作系统-进程线程
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/10/16/mysql-table/">
+        Next post<br>mysql-表
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?15118369"></script>
+
+
+
+</body>
+</html>

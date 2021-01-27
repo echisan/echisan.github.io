@@ -1,0 +1,503 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>mysql-锁 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="InnoDB存储引擎中的锁锁的类型，InnoDB存储引擎实现了如下两种标准的行级锁：
+
+共享锁(S Lock)，允...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?94152654">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    mysql-锁
+                    <div class="post-meta">
+                        <time datetime="2019-09-30T03:43:36.000Z" itemprop="datePublished">
+                            2019-09-30 11:43
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/mysql/'>mysql</a>, 
+                        
+                        <a href='/tags/innodb/'>innodb</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h2 id="InnoDB存储引擎中的锁"><a href="#InnoDB存储引擎中的锁" class="headerlink" title="InnoDB存储引擎中的锁"></a>InnoDB存储引擎中的锁</h2><p>锁的类型，InnoDB存储引擎实现了如下两种标准的行级锁：</p>
+<ul>
+<li>共享锁(S Lock)，允许事务读一行数据</li>
+<li>排它锁(X Lock)，允许事务删除或更新一行数据</li>
+</ul>
+<blockquote>
+<p>如果一个事务T1已经获得了行r的共享锁，那么另外的事务T2可以立即获得行r的共享锁，因为读取并没还有改变行r的数据，称这种情况为锁兼容(Lock Compatible)，若有其他的事务T3想获得行r的排他锁，则其必须等待事务T1、T2释放行r上的共享锁——这种情况称为锁不兼容。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>-</th>
+<th>X</th>
+<th>s</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>X</td>
+<td>不兼容</td>
+<td>不兼容</td>
+</tr>
+<tr>
+<td>S</td>
+<td>不兼容</td>
+<td>兼容</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>需要注意的是，S和X锁都是行锁，兼容是指同一记录(row)锁的兼容性情况</p>
+</blockquote>
+<h3 id="意向锁-Intention-Lock-IX"><a href="#意向锁-Intention-Lock-IX" class="headerlink" title="意向锁(Intention Lock) IX"></a>意向锁(Intention Lock) IX</h3><p>意向锁是将锁定的对象分为多个层次，意向锁意味着事务希望在更细粒度(fine granularity)上进行加锁。 如下图所示</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/65810810-fb35a980-e1e1-11e9-9896-f910d181bf44.png" alt="image"></p>
+<p>总结来说的话，就是对最细粒度的对象进行上锁的话，需要对粗粒度的对象上IX锁，也就是意向锁，但是会存在兼容性的问题</p>
+<p>InnoDB在支持意向锁设计比较简练，其意向锁即为表级别的锁。设计目的主要是为了在一个事务中揭示下一行将被请求的锁类型。其支持两种意向锁</p>
+<ul>
+<li>意向共享锁(IS Lock)，事务想要获得一张表中某几行的共享锁</li>
+<li>意向排它锁(IX Lock)，事务想要获得一张表中某几行的排它锁</li>
+</ul>
+<p>由于InnoDB支持的是行级别的锁，因此意向锁其实不会阻塞全表扫以外的任何请求。故表级意向锁与行级锁的兼容性如下</p>
+<blockquote>
+<p>我理解的应该这么说 (列)想要获得表(行)上的一个(列)锁，e.g. IS想要获得表的IS锁，所以是兼容的</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>-</th>
+<th>IS</th>
+<th>IX</th>
+<th>S</th>
+<th>X</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IS</td>
+<td>兼容</td>
+<td>兼容</td>
+<td>兼容</td>
+<td>不兼容</td>
+</tr>
+<tr>
+<td>IX</td>
+<td>兼容</td>
+<td>兼容</td>
+<td>不兼容</td>
+<td>不兼容</td>
+</tr>
+<tr>
+<td>S</td>
+<td>兼容</td>
+<td>不兼容</td>
+<td>兼容</td>
+<td>不兼容</td>
+</tr>
+<tr>
+<td>X</td>
+<td>不兼容</td>
+<td>不兼容</td>
+<td>不兼容</td>
+<td>不兼容</td>
+</tr>
+</tbody></table>
+<h3 id="一致性非锁定读"><a href="#一致性非锁定读" class="headerlink" title="一致性非锁定读"></a>一致性非锁定读</h3><p>一致性非锁定读是指InnoBD存储引擎通过行多版本控制的方式来读取当前执行时间数据库中行的数据。如果读取的行正在执行DELETE或UPDATE操作，这时读取操作不会因此去等待行上锁的释放。相反地，InnoDB会去读取行地一个快照数据。</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/65813202-76a85280-e204-11e9-9f31-2c0b80c7d440.png" alt="image"></p>
+<blockquote>
+<p>快照数据时指该行地之前版本地数据，该实现是通过undo段来完成地。而undo用来在事务中回滚数据，因此此快照数据本身是没有额外地开销。此外，读取快照数据是不需要上锁地，因为没有事务需要对历史地数据进行修改操作。在默认设置下，这是默认的读取方式，但在不同事务隔离级别下，读取的方式不同，并不是在每个事务隔离级别下都是采用非锁定的一致性读。此外，即使都是使用非锁定的一致性读，但是对于快照数据的定义也各不相同。</p>
+</blockquote>
+<p><strong>多版本并发控制</strong><br>一个行记录可能有不止一个快照数据，一般称这种技术为行多版本技术，由此带来的并发控制，称之为多版本并发控制。</p>
+<p>下面有个例子，用于说明在READ COMMITED 与 READ REPEATABLE不同的事务隔离级别下，读取的方式区别</p>
+<p>如下图，COMMITED READ级别下，总是读取最新的版本，即会话A最开始读取到id为1，在会话B更新了id为3，然后commit后，A仍然会读取最新的版本，所以select id为1就不存在了，因为最新的版本id是3。<br>而在READ REPEATABLE下，始终会读取最初始的版本，所以读取到的id仍然为1</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/65813440-d5230000-e207-11e9-8282-c52c03d82786.png" alt="image"></p>
+<blockquote>
+<p>需要特别注意的是，对于READ COMMITED 的事务隔离级别而言，从数据库理论的角度看，其违反了事务ACID中的I的特性，即隔离性。</p>
+</blockquote>
+<h3 id="一致性锁定读"><a href="#一致性锁定读" class="headerlink" title="一致性锁定读"></a>一致性锁定读</h3><p>在默认配置下，READ COMMITED 跟 REPEATABLE READ这两种事务隔离级别下都是采用非锁定读的。但在某些情况下，用户需要显式地对数据库读取操作进行加锁保证数据逻辑地一致性。</p>
+<p>InnoDB对于select语句支持两种一致性锁定读(locking read)操作</p>
+<ul>
+<li><code>SELECT ... FOR UPDATE</code> 对读取地行记录加一个X锁，其他事务不能对已锁定地行加上任何锁</li>
+<li><code>SELECT ... LOCK IN SHARE MODE</code> 对读取地行记录加一个S锁，其他事务可以向被锁定地行加S锁，但是如果加X锁，则会被阻塞</li>
+</ul>
+<blockquote>
+<p>对于上述连个SELECT锁定语句时，务必加上BEGIN，START TRANSACTION或者SET AUTOCOMMIT=0</p>
+</blockquote>
+<h3 id="自增长与锁"><a href="#自增长与锁" class="headerlink" title="自增长与锁"></a>自增长与锁</h3><p><code>innodb_autoinc_lock_mode</code>，总共有3个有效值可供设定，0、1、2</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/65813794-42389480-e20c-11e9-81a1-4eabdc119daf.png" alt="image"></p>
+<h3 id="外键和锁"><a href="#外键和锁" class="headerlink" title="外键和锁"></a>外键和锁</h3><p>对于一个外键列，如果没有显示地对这个列加索引，InnoDB会自定对其加一个索引，因为这样可以避免表锁。(我：可能因为全表扫描不会采用一致性非锁定读？而会采用表锁？只在读的情况下？)</p>
+<p>对于外键值的插入或更新，首先需要查询父表中的记录，即SELECT父表。但是对于父表的SELECT操作，不是使用一致性非锁定读的方式，因为这样会发生数据不一致的问题，因此这是使用的时<code>SELECT ... LOCK IN SHARE MODE</code>方式，即主动对父表加一个S锁。如果这时父表上已经这样加了X锁，子表上的操作会被阻塞。</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/65813876-60eb5b00-e20d-11e9-8145-c706acc8a439.png" alt="image"></p>
+<p>两个会话都没有进行COMMIT或ROLLBACK操作，而会话B被阻塞的原因是：<br>id为3的父表在A中已经加了一个X锁(因为是DELETE操作？)，然和人B中又需要对id为3的行获取一个S锁，此时INSERT操作会被阻塞。</p>
+<p>如果此时采用的是一致性非锁定读，这是Session B就会读到父表有id为3的记录，可以插入数据库。但是如果会话A对事务提交了，父表中就不存在id为3的记录。数据在父、子表就会存在不一致的情况。</p>
+<h2 id="锁的算法"><a href="#锁的算法" class="headerlink" title="锁的算法"></a>锁的算法</h2><h3 id="行锁的3种算法"><a href="#行锁的3种算法" class="headerlink" title="行锁的3种算法"></a>行锁的3种算法</h3><ul>
+<li>Record Lock: 单个行记录上的锁</li>
+<li>Gap Lock：间隙锁，锁定一个范围，但不包含记录本身</li>
+<li>Next-Key Lock： Gap Lock+Record Lock，锁定一个范围，并且锁定记录本身</li>
+</ul>
+<p><strong>Next-Key Lock</strong> </p>
+<p>如果一个索引有10，11，13，20四个值，那么该索引可能被next-key locking的区间为：</p>
+<ul>
+<li>(-∞,10]</li>
+<li>(10,11]</li>
+<li>(11,13]</li>
+<li>(13,20]</li>
+<li>(20,+∞]</li>
+</ul>
+<p>采用Next-Key lock的锁定技术称为 Next-Key Locking。其设计的目的是为了解决幻读(Phantom Problem)，利用这种锁定技术，锁定的不是单个值，而是一个方位，是谓词锁(predict lock)的一种改进。</p>
+<p>若事务T1已经通过next-key lock锁定了如下范围<br><code>(10,11]、(11,13]</code><br>当插入新的记录12时，则锁定的范围会变成:<br><code>(10,11]、(11,12]、(12,13]</code>  </p>
+<blockquote>
+<p>然后当查询的索引含有唯一属性时，innodb会对next-key lock进行优化，将其降级为Record lock，即仅锁住索引本身，而不是范围。</p>
+</blockquote>
+<p>举个栗子，创建了如下表(z)</p>
+<table>
+<thead>
+<tr>
+<th>a(主键)</th>
+<th>b(辅助索引)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3</td>
+</tr>
+<tr>
+<td>7</td>
+<td>6</td>
+</tr>
+<tr>
+<td>10</td>
+<td>8</td>
+</tr>
+</tbody></table>
+<p>当在会话A执行下面的SQL语句：</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">SELECT * FROM z WHERE b &#x3D; 3 FOR UPDATE<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>此时sql通过索引b进行查询，因为时非唯一的辅助索引，所以采用了传统的next-key locking技术，并且由于有两个索引，其需要分别进行锁定。对于聚集索引来说，其仅对列a等于5的索引加上record lock。所以对于辅助索引，其加上了Next-Key Lock，锁定的范围是(1,3)。 <strong>需要特别注意的是，InnoDB还会对辅助索引的下一个键值加上gap lock,即还有一个辅助索引范围为(3,6)的锁</strong> 因此，若在新会话B中允许下面的SQL语句，都会被阻塞</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">SELECT * FROM z WHERE a &#x3D; 5 LOCK IN SHARE MODE;
+INSERT INTO z SELECT 4,2
+INSERT INTO z SELECT 6,5<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>分析：<br>第一个sql语句不能执行，因为A中的sql已经对聚集索引列中a=5的值加上了X锁，因此会被阻塞。<br>第二句sql语句，主键插入4没有问题，但是插入的辅助索引值为2在锁定范围(1,3)之间，因此会被阻塞<br>第三个sql语句，主键插入6没有问题，没有被锁定，索引5插入不在(1,3)中，但是在(3,6)中，所以依然会被锁定。</p>
+<p>但是如果执行以下sql，是不会被阻塞的  </p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">INSERT INTO z SELECT 8,6
+INSERT INTO z SELECT 2,0
+INSERT INTO z SELECT 6,7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>从上面例子可以看到，Gap Lock为了阻止多个事务将记录插入到同一范围内，而这回导致幻读的产生。<br>例如上面的例子中，会话A中已经锁定b=3的记录。若此时没有gap lock锁定(3,6)，那么用户可以插入索引b列为3的记录，这会导致会话A中的用户再次执行同样查询时会返回不同的记录，即幻读(Phantom Problem)。</p>
+<p>在innodb存储引擎中，对于insert操作，会检查插入记录的下一条记录是否被锁定，若已经被锁定，则不允许查询。</p>
+<blockquote>
+<p>对于唯一键值的锁定，Next-Key Lock降级为Record Lock仅存在于查询所有的唯一索引列。若唯一索引由多个列组成，而查询仅是查找多个唯一索引列中的其中一个，那么查询其实是range类型查询，而不是point类型查询，故innodb依然使用next-key lock进行锁定</p>
+</blockquote>
+<h3 id="解决-Phantom-Problem-幻读"><a href="#解决-Phantom-Problem-幻读" class="headerlink" title="解决(Phantom Problem)幻读"></a>解决(Phantom Problem)幻读</h3><p>在默认的事务隔离级别下，即REPEATABLE READ下，innodb采用next-key locking机制来避免幻读问题。</p>
+<blockquote>
+<p><strong>Phantom Problem是指同一事务下，连续执行2次同样的SQL语句可能导致不同的结果，第二次的SQL语句可能返回之前不存在的行</strong></p>
+</blockquote>
+<p>举个栗子，创建一个表t,<code>CREATE TABLE t (a INT PRIMARY KEY);</code></p>
+<table>
+<thead>
+<tr>
+<th>a</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+</tr>
+<tr>
+<td>5</td>
+</tr>
+</tbody></table>
+<p>若此时事务T1执行如下语句<br><code>SELECT * FROM t WHERE a&gt;2 FOR UPDATE;</code><br>注意，此时事务T1并没有进行提交操作，上述应该返回5这个结果。若此时另一个事务T2插入了4这个值(假设数据库允许这个操作)那么事务T1再次执行上述SQL，会得出结果4、5，这与第一次得到的结果不同，违反了事务的隔离性。</p>
+<p>InnoDB采用了Next-Key Locking的算法避免了幻读。对于上述sql语句，其锁住的不是5这单个值，而是对(2,+∞)这个范围加了X锁，因此对于这个范围的插入操作时不被允许的，从而避免幻读。</p>
+<h3 id="唯一性检查"><a href="#唯一性检查" class="headerlink" title="唯一性检查"></a>唯一性检查</h3><p>背景介绍：</p>
+<blockquote>
+<p>在开发过程中，很多时候，我们有很多的需求都需要“若不存在则插入”的需求。</p>
+</blockquote>
+<p>然后目前做法是如下面的代码，但是这里会有个并发问题，因为这不是一个原子操作，在并发情况下可能会出现多个name相同的问题，当然这个可以在数据库里面做限制，name设置称unique</p>
+<pre class="line-numbers language-golang" data-language="golang"><code class="language-golang">user :&#x3D; dao.getUserByName(name)
+if user !&#x3D; nil &#123;
+    return &quot;该用户名已存在&quot;
+&#125;
+
+dao.insertUser(&amp;User&#123;Name:name&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>所以不设置unique的时候在想，有没有这样一种方法，但是并没有</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">insert into user(name) values(name) where name !&#x3D; &#39;name&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>然后现在知道了多一个用法，当然，需要开启一个事务</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">select * from user where name &#x3D; &#39;name&#39; lock in share mode;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>用法与上面第一种一致，但是在执行的时候，只有一个事务会成功，别的都会抛出死锁的错误</p>
+<pre class="line-numbers language-golang" data-language="golang"><code class="language-golang">dao.insertUser(&amp;User&#123;Name:name&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="锁问题"><a href="#锁问题" class="headerlink" title="锁问题"></a>锁问题</h2><blockquote>
+<p>通过锁定机制可以实现事务的隔离性要求，使得事务可以并发地工作。锁提高了并发，却会带来潜在地问题。不过因为事务隔离性地要求，锁只会带来三种问题，防止这三种情况地发生，那将不会产生异常。</p>
+</blockquote>
+<h3 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h3><p>脏数据是指未提交地数据，如果读到脏数据，即一个事务可以读到另外一个事务中为提交地数据，显然违反了数据库地隔离性。</p>
+<p>READ UNCOMMITTED(未提交读)</p>
+<blockquote>
+<p>脏读隔离看似毫无用处，但在一些比较特殊地情况下还是可以将事务地隔离级别设置为READ UNCOMMITTED。例如replication环境中地slave节点，并且该slave上的查询并不需要特别精确的返回值</p>
+</blockquote>
+<h3 id="不可重复读"><a href="#不可重复读" class="headerlink" title="不可重复读"></a>不可重复读</h3><p>READ COMMITTED(提交读)</p>
+<p>同一个事务内两次读取数据不一样的情况。一般来说，不可重复读的问题可以接受，因为其读到的是已经提交的数据，本身不会带来很大的问题。</p>
+<blockquote>
+<p>在innodb中，通过使用Next-Key Lock算法来避免不可重复读。在MySQL文档中，将不可重复的也定义成幻读。在Next-Key Lock算法下，对于索引的扫描，不仅锁住扫描到的索引，而且还锁住这些索引覆盖到的范围(gap)。因此这个范围内的插入都是不允许的，这样就避免了另外的事务在这个范围内插入数据导致的不可重复度的问题。</p>
+</blockquote>
+<h3 id="丢失更新"><a href="#丢失更新" class="headerlink" title="丢失更新"></a>丢失更新</h3><p>丢失更新是另一个锁导致的问题，就是一个事务的更新操作被另一个事务的更新操作覆盖了，从而导致数据的不一致。</p>
+<p>避免更新丢失的做法就是将操作并行化，也就是获取一个排它锁，所以在一个事务中可以这么使用</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">SELECT * FROM XX WHERE id&#x3D;? FOR UPDATE<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="阻塞"><a href="#阻塞" class="headerlink" title="阻塞"></a>阻塞</h2><p>在innodb中，参数<code>innodb_lock_wait_timeout</code>用来控制等待时间(默认是50秒),<code>innodb_rollback_on_timeout</code>(静态的，不可在启动时进行修改)来设定是否在等待超时时间对进行中的事务进行回滚(默认是OFF，代表不回滚)，<code>innodb_lock_wait_timeout</code>是动态的，可以在MySQL数据库运行时进行调整</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">SET @@innodb_lock_wait_timeout&#x3D;60;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h2><blockquote>
+<p>死锁是指两个或两个以上的事务在执行过程中，因争夺锁资源而造成的一种互相等待的现象</p>
+</blockquote>
+<p>除了<del>超时机制</del> 当前数据库普遍采用wait-for graph(等待图)的方式来进行死锁检测。较之超时的解决方案，这是一种更为主动的死锁检测机制。innodb也采用这种方式。wait-for graph要求数据库保存以下两种信息：</p>
+<ul>
+<li>锁的信息链表</li>
+<li>事务等待链表</li>
+</ul>
+<p>通过上述链表可以构造出一张图，而在这个图中若存在回路，则代表存在死锁，因此资源间相互发生等待。在wait-for graph中，事务为图中的节点，而在图中，事务T1指向T2边的定义为：</p>
+<ul>
+<li>事务T1等待事务T2所占用的资源</li>
+<li>事务T1最终等待T2所占用的资源，也就是事务之间在等待相同的资源，而事务T1发生在事务T2的后面</li>
+</ul>
+<p>看下面一个例子</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/65825941-9cd6fc80-e2af-11e9-9ec7-b3f1fee6b16c.png" alt="image"></p>
+<p>看到Transaction Wait Lists中共有4个事务，故在wait-for graph中应有4个节点</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/65825971-f2aba480-e2af-11e9-93fa-1146a2b7d69f.png" alt="image"></p>
+<p>因为t2对row1占用了x锁，t1对row2占用了s锁，t1需要等待t2中row1的资源，因此在wait-for graph中有条边从节点t1指向了t2.<br>而又因为t2需要等待t1、t4所占用了row2资源，所以存在t2到t1、t4的边。<br>同样，t3需要等待t1,t4,t2所占用的tow2资源，所以有一条t3到t1,t4,t2的边。<br>因此最终的wait-for graph如下图所示</p>
+<p><img src="https://user-images.githubusercontent.com/38010908/65826006-89786100-e2b0-11e9-9a11-2c7e09565bf4.png" alt="image"></p>
+<p>通过上述例子，可以发现wait-for graph是一种较为主动的死锁检测机制，在每个事务请求锁并发生等待时都会判断是否存在回路，若存在则有死锁，通常来说innodb选择回滚undo量最小的事务</p>
+<blockquote>
+<p>wait-for graph的死锁检测通常采用深度优先算法实现</p>
+</blockquote>
+<h3 id="锁升级"><a href="#锁升级" class="headerlink" title="锁升级"></a>锁升级</h3><p>锁升级是指锁的粒度降低，e.g 行锁升级成页锁，页锁升级成表锁</p>
+<blockquote>
+<p>innodb根据页进行加锁，并采用位图的方式。</p>
+</blockquote>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/09/30/mysql-transaction/">
+        Previous post<br>mysql-事务
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/09/30/mysql-index-and-foreign-key/">
+        Next post<br>mysql-索引与外键
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?47970413"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,544 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>操作系统-经典进程同步问题 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="经典进程同步问题关于进程同步有一系列经典问题，比较代表性的有
+
+生产者——消费者
+读者——写者
+哲学家进餐问题
+
+...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?6794342">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    操作系统-经典进程同步问题
+                    <div class="post-meta">
+                        <time datetime="2019-10-15T06:27:32.000Z" itemprop="datePublished">
+                            2019-10-15 14:27
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/操作系统/'>操作系统</a>, 
+                        
+                        <a href='/tags/进程/'>进程</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h1 id="经典进程同步问题"><a href="#经典进程同步问题" class="headerlink" title="经典进程同步问题"></a>经典进程同步问题</h1><p>关于进程同步有一系列经典问题，比较代表性的有</p>
+<ul>
+<li>生产者——消费者</li>
+<li>读者——写者</li>
+<li>哲学家进餐问题</li>
+</ul>
+<h2 id="生产者——消费者问题"><a href="#生产者——消费者问题" class="headerlink" title="生产者——消费者问题"></a>生产者——消费者问题</h2><ol>
+<li>利用记录型信号量解决生产者-消费者问题</li>
+</ol>
+<p>假定生产者消费者之间的公用缓冲池具有n个缓冲区，互斥信号量mutex实现诸进程对缓冲池的互斥使用，empty、full表示缓冲池中空缓冲区和满缓冲区的数量。</p>
+<p>假设：缓冲池未满，生产者可将消息送入缓冲池；缓冲池未空，消费者则可以从缓冲池取走一个消息。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">&#x2F;&#x2F; in为进队列的下标，out为消费队列的下标
+int in&#x3D;0,out&#x3D;0;
+&#x2F;&#x2F; 循环队列
+item buffer[n];
+&#x2F;&#x2F; mutex互斥锁，empty：剩余可用的队列空间，full当前已有的产品数量
+semaphore mutex&#x3D;1,empty&#x3D;n,full&#x3D;0;
+void proceducer()&#123;
+    do&#123;
+        &#x2F;&#x2F; 生产了一个产品nextp
+        producer an item nextp;
+        ...
+        &#x2F;&#x2F; 如果是empty为0，则进程会被放进等待的队列中
+        wait(empty);
+        &#x2F;&#x2F; 获得一个锁的东西，比如此时有消费者在buffer中获取产品，则也会被放进等待队列中，直到被释放
+        wait(mutex);
+        &#x2F;&#x2F; 已取得锁，可以将产品放进in的位置
+        buffer[in]&#x3D;nextp;   
+        &#x2F;&#x2F; 将该buffer当循环队列使用，计算下次放进去队列的下标
+        in:&#x3D;(in+1)%n;
+        &#x2F;&#x2F; 释放该锁，使消费者可以获得该互斥锁
+        signal(mutex);
+        &#x2F;&#x2F; full表示有多少个产品，signal表示对full++，此时多了一个产品，则唤醒(通知)在等待队列中的消费者可以进行消费了
+        signal(full);
+    &#125;while(true);
+&#125;
+
+void consumer()&#123;
+    do &#123;
+        &#x2F;&#x2F; 判断队列是否为空，为空则将进程放进阻塞队列中，直到proceducer()有新的产品被生产了，然后通知该阻塞的队列的进程，也就本进程了
+        wait(full);
+        &#x2F;&#x2F; 获取操作队列的锁
+        wait(mutex);
+        &#x2F;&#x2F; 获取产品
+        nextc&#x3D;buffer[out];
+        &#x2F;&#x2F; 循环队列，获取下一个出队列的下标
+        out&#x3D;(out+1)%n;
+        &#x2F;&#x2F; 释放队列的锁，通知生产者可以操作队列了
+        signal(mutex);
+        &#x2F;&#x2F; empty++，队列增加了一个位置，通知生产在阻塞队列的进程可以生产了 
+        signal(empty);
+        &#x2F;&#x2F; 消费。。
+        consumer the item in nextc;
+    &#125; while(true);
+&#125;
+
+&#x2F;&#x2F; main 
+void main()&#123;
+    cobegin
+        proceducer(); consumer();
+    coend
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol start="2">
+<li>利用AND信号量解决生存者-消费者问题  </li>
+</ol>
+<p>几乎与上述描述一致，这里用AND信号量解决</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">&#x2F;&#x2F; in为进队列的下标，out为消费队列的下标
+int in&#x3D;0,out&#x3D;0;
+&#x2F;&#x2F; 循环队列
+item buffer[n];
+&#x2F;&#x2F; mutex互斥锁，empty：剩余可用的队列空间，full当前已有的产品数量
+semaphore mutex&#x3D;1,empty&#x3D;n,full&#x3D;0;
+void proceducer()&#123;
+    do&#123;
+        &#x2F;&#x2F; 创建新产品
+        producer an item nextp;
+        &#x2F;&#x2F; AND信号量，这里复习一下Swait是什么
+        &#x2F;&#x2F; 一个死循环，然后判断是否所有条件都满足(大于等于1)，只要有其中一个条件不满足，就会将该进程放进等待或者阻塞队列中
+        &#x2F;&#x2F; 当满足条件了，会对swait中的参数进行减一操作，对empty减一，就是空闲数-1
+        Swait(empty,mutex);
+        &#x2F;&#x2F; 把新生产的产品放进去队列
+        buffer[in]&#x3D;nextp;
+        &#x2F;&#x2F; 计算下标
+        in:&#x3D;(in+1)%n;
+        &#x2F;&#x2F; AND信号量的操作，也复习一下
+        &#x2F;&#x2F; 对Ssignal中的所有参数进行加一操作
+        &#x2F;&#x2F; 并唤醒等待或阻塞的进程
+        Ssignal(mutex,full);
+    &#125; while(true);
+&#125;
+
+void consumer()&#123;
+    do &#123;
+        &#x2F;&#x2F; 上述一样，当full(未消费的产品数)大于等于1
+        &#x2F;&#x2F; 且mutex互斥锁没有被占用时
+        &#x2F;&#x2F; 取得资源的使用权，否则阻塞
+        Swait(full,mutex);
+        nextc&#x3D;buffer[out];
+        out&#x3D;(out+1)%n;
+        &#x2F;&#x2F; 对mutex跟empty进行加一操作，表示释放资源
+        &#x2F;&#x2F; 并且唤醒在等待empty跟mutex的进程
+        Ssignal(mutex,empty);
+        consumer the item in nextc;
+    &#125;while(true);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol start="3">
+<li>利用管程</li>
+</ol>
+<p>在利用管程方法来解决生产者—消费者的问题时，首先为他们建立一个管程，并命名为producerconsumer，简称pc，其中包含两个过程</p>
+<ol>
+<li>put(x)过程。将产品放进去缓冲池中，需要count&lt;=N</li>
+<li>get(x)过程。从缓冲池中取出一个产品，需要count&gt;1</li>
+</ol>
+<p>对于条件变量notfull和notempty，分别有两个过程cwait和csignal对它们进行操作</p>
+<ol>
+<li>cwait(condition)过程：当管程被一个进程占用时，其它进程调用该过程时阻塞，并挂在condition的队列上</li>
+<li>csignal(condition)过程：唤醒在cwait执行后阻塞的条件condition队列上的进程，如果进程不止一个，则选择其中一个唤醒，队列为空则无操作返回</li>
+</ol>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">Monitor producerconsumer&#123;
+    item buffer[N];
+    int in,out;
+    &#x2F;&#x2F; 条件变量
+    &#x2F;&#x2F; notfull，没有空余的区域
+    &#x2F;&#x2F; notempty，队列为空
+    condition notfull,notempty;
+    int count;
+    public:
+    void put(item x)&#123;
+        &#x2F;&#x2F; 当队列中的数据以达到最大值
+        &#x2F;&#x2F; 则将本进程放进等待队列中阻塞
+        if(count&gt;&#x3D;N)cwait(notfull);
+        buffer[in]&#x3D;x;
+        in&#x3D;(in+1)%N;
+        count++;
+        &#x2F;&#x2F; 唤醒队列其中一个进程可以进行消费了
+        csignal(notempty);
+    &#125;
+    void get(item x)&#123;
+        &#x2F;&#x2F; 当队列没有数据时
+        &#x2F;&#x2F; 将进程放进等待数据的队列中阻塞
+        if(count&lt;&#x3D;0)cwait(notempty);
+        x&#x3D;buffer[out];
+        out&#x3D;(out+1)%N;
+        count--;
+        &#x2F;&#x2F; 当数据被消费了
+        &#x2F;&#x2F; 通知被阻塞的生产者可以继续生产了
+        csignal(notfull);
+    &#125;
+    &#x2F;&#x2F; init
+    &#123;   in&#x3D;0;out&#x3D;0;count&#x3D;0; &#125;
+&#125;PC;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在利用管程解决生产者-消费者时，其中的生产者消费者可描述为：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">void producer()&#123;
+    item x;
+    while(true)&#123;
+        produce an item in nextp;
+        PC.put(x);
+    &#125;
+&#125;
+
+void consumer()&#123;
+    item x;
+    while(true)&#123;
+        PC.get(x);
+        consume the item in nextc;
+    &#125;
+&#125;
+
+void main()&#123;
+    cobegin;
+    producer(); consumer();
+    coend;
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="哲学家进餐问题"><a href="#哲学家进餐问题" class="headerlink" title="哲学家进餐问题"></a>哲学家进餐问题</h2><h3 id="利用记录型信号量解决问题"><a href="#利用记录型信号量解决问题" class="headerlink" title="利用记录型信号量解决问题"></a>利用记录型信号量解决问题</h3><p>可以用一个信号量表示一只筷子，五个信号量构成一个数组</p>
+<pre class="line-numbers language-none"><code class="language-none">semaphore chopstick[5]&#x3D;&#123;1,1,1,1,1&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">do&#123;
+    &#x2F;&#x2F; 拿左手边的筷子，如果没有则阻塞
+    wait(chopstick[i]);
+    &#x2F;&#x2F; 拿右手边的筷子，如果没有则阻塞
+    wait(chopstick[(i+1)%5];
+    
+    &#x2F;&#x2F; 拿到筷子了，吃饭。。
+    
+    &#x2F;&#x2F; 释放左手边的筷子
+    signal(chopstick[i]);
+    &#x2F;&#x2F; 释放右手边的筷子
+    signal(chopstick[(i+1)%5];
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述解法可保证不会有两个相邻的哲学家同时进餐，但却有可能引起死锁。假如五位哲学家同时极饿而各自拿起左边的筷子时，都将因为无筷子可拿而无限期地等待。对于这样的死锁问题，可采取一下几种解决方法：</p>
+<ol>
+<li>至多只允许有四位哲学家同时去拿左边的筷子，最终能保证至少有一位哲学家能够进餐，并在用完时能释放他用过的两只筷子，从而使更多的哲学家能够进餐</li>
+<li>仅当哲学家的左、右两只筷子均可用时，才允许他拿起筷子进餐</li>
+<li>规定奇数号哲学家先拿他左边的筷子，然后再去拿右边的筷子，而偶数号哲学家则相反。按照这规定，将是1、2号哲学家竞争1号筷子，3、4号竞争3号筷子。即五位哲学家都先竞争奇数号筷子，获得后再去竞争偶数号筷子，最后总有一位哲学家能获得两只筷子而进餐。</li>
+</ol>
+<h3 id="利用AND信号量机制"><a href="#利用AND信号量机制" class="headerlink" title="利用AND信号量机制"></a>利用AND信号量机制</h3><p>从上述可以知道，第二个解决方案</p>
+<blockquote>
+<ol start="2">
+<li>仅当哲学家的左、右两只筷子均可用时，才允许他拿起筷子进餐</li>
+</ol>
+</blockquote>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">semaphore chopstick chopstick[5]&#x3D;&#123;1,1,1,1,1&#125;
+do &#123;
+    ...
+    &#x2F;&#x2F; think
+    ...
+    Sswait(chopstick[(i+1)%5],chopstick[i]);
+    &#x2F;&#x2F; eat
+    ...
+    Ssignal(chopstick[(i+1)%5],chopstick[i]);
+&#125; while(true)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="读者-写者问题"><a href="#读者-写者问题" class="headerlink" title="读者-写者问题"></a>读者-写者问题</h2><p>也就是对某个文件进行read,write操作，read操作可以多个进程同时执行，但是write只能允许一个进程执行并且此时不允许read操作以及write操作，否则回引起混乱</p>
+<h3 id="利用记录型信号量解决问题-1"><a href="#利用记录型信号量解决问题-1" class="headerlink" title="利用记录型信号量解决问题"></a>利用记录型信号量解决问题</h3><p>为实现reader与writer进程间在读或写时的互斥信号量<code>Wmutex</code>。另外，再设置一个整形变量<code>Readcount</code>表示正在读的进程数目，由于只要有一个reader进程在读，就不允许writer进程去写。因此，仅当readcount=0,reader进程才需要执行wait(wmutex)操作。当reader执行了readcount减1的操作后其值为0时，才需要执行signal(Wmutex)，以便让writer进程写操作。因为readcount是一个临界值，所以需要设置一个互斥锁rmutex</p>
+<blockquote>
+<p>注意⚠️：这里注意两个信号量，<code>rmutex</code>表示对<code>readcount</code>临界资源的互斥锁，而<code>wmutex</code>表示对被读写的资源的一个互斥锁</p>
+</blockquote>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">&#x2F;&#x2F; 两个信号量
+semaphore rmutex&#x3D;1,wmutex&#x3D;1;
+&#x2F;&#x2F; 记录获得读锁的进程数
+int readcount&#x3D;0;
+void reader()&#123;
+    do&#123;
+        &#x2F;&#x2F; 阻塞等待readcount的互斥锁
+        wait(rmutex);
+        &#x2F;&#x2F; 当readcount为0时，代表没有进程在进行读操作
+        &#x2F;&#x2F; 那么有可能此时该资源正在被写
+        &#x2F;&#x2F; 所以需要等待该资源的锁
+        if(readcount&#x3D;&#x3D;0) wait(wmutex);
+        &#x2F;&#x2F; 获得资源的锁后，说明写操作已经结束了
+        &#x2F;&#x2F; 可以进行一些操作了
+        &#x2F;&#x2F; 对readcount++操作，表示此时多了一个进程进行读操作
+        readcount++;
+        &#x2F;&#x2F; 此时可以将rmutex锁释放了
+        &#x2F;&#x2F; 因为同一时间可以有多个进程进行读操作
+        &#x2F;&#x2F; 若没有释放rmutex锁的话
+        &#x2F;&#x2F; 别的进程则无法获取到该锁
+        &#x2F;&#x2F; 进而退化成，读操作也是互斥了的
+        signal(rmutex);
+        &#x2F;&#x2F; ..读操作
+        
+        &#x2F;&#x2F; ..读完
+        &#x2F;&#x2F; 读完之后获取readcount锁
+        &#x2F;&#x2F; 因为需要对readcount进行减1的操作
+        wait(rmutex);
+        readcount--;
+        &#x2F;&#x2F; 如果当没有进程在读时，那么可以释放该资源的互斥锁了
+        &#x2F;&#x2F; 因为只要有1个进程在读，那么就无法进行写操作
+        &#x2F;&#x2F; 所以当readcount为0时，则可以释放该锁
+        &#x2F;&#x2F; 便可以唤醒writer进程，进行写操作
+        if(readcount&#x3D;&#x3D;0) signal(wmutex);
+        &#x2F;&#x2F; 对readcount--完后，就可以释放该锁了
+        signal(rmutex);
+    &#125;while(true);
+&#125;
+&#x2F;&#x2F; writer进程
+void writer()&#123;
+    do&#123;
+        &#x2F;&#x2F; 等待该资源的互斥锁
+        wait(wmutex);
+        &#x2F;&#x2F; .. 写操作
+        &#x2F;&#x2F; 释放
+        signal(wmutex);
+    &#125;while(true);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="利用信号量集机制解决读者-写者问题"><a href="#利用信号量集机制解决读者-写者问题" class="headerlink" title="利用信号量集机制解决读者-写者问题"></a>利用信号量集机制解决读者-写者问题</h3><p>这里与上述的问题不同，它增加了一个限制，最多只允许RN个读者同时读，为此又引入一个信号量L，并赋予其初值RN，通过执行<code>wait(L,1,1)</code>操作来控制读者的数目，每当有一个读者进入时，要先执行<code>wait(L,1,1)</code>操作，使L的值减1。当有RN个读者进入读后，L便减为0，当第RN+1个读者想要进入读时，则会阻塞。</p>
+<blockquote>
+<p>RN: 表示限制的读进程数<br>mux: 表示对资源的写锁</p>
+</blockquote>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">int RN;
+semaphore L&#x3D;RN,mx&#x3D;1;
+void reader()&#123;
+    do&#123;
+        &#x2F;&#x2F; 获取读锁
+        &#x2F;&#x2F; 读锁资源总共L个，一次最少获取资源1个，本次获取1个资源
+        Swait(L,1,1);
+        &#x2F;&#x2F; 这里表示所有进程都可以获取锁
+        &#x2F;&#x2F; mx--
+        Swait(mx,1,0);
+        &#x2F;&#x2F; 读操作...
+        &#x2F;&#x2F; 释放资源
+        Ssignal(L,1);
+    &#125;while(true);
+&#125;
+void writer()&#123;
+    do&#123;
+        &#x2F;&#x2F; 等待读锁，获取全部的读资源锁
+        Swait(mx,1,1,L,RN,0);
+        &#x2F;&#x2F; 写操作...
+        &#x2F;&#x2F; 写完释放写锁
+        Ssignal(mx,1);
+    &#125;while(true);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p><code>Swait(S,1,0)</code>当S&gt;=1时，允许多个进程进入某特定区，当S变为0后，则阻止任何进程进入特定区</p>
+</blockquote>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/10/16/mysql-table/">
+        Previous post<br>mysql-表
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/10/11/os-process/">
+        Next post<br>操作系统-进程
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?69934032"></script>
+
+
+
+</body>
+</html>

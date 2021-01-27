@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>k8s下的spirngboot跨域问题 - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="很烦的跨域问题在前后端分离的情况下，假如在springboot没配置cors的情况下，就会出现这样的问题。
+Acc...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?12923699">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    k8s下的spirngboot跨域问题
+                    <div class="post-meta">
+                        <time datetime="2019-12-04T08:35:05.000Z" itemprop="datePublished">
+                            2019-12-04 16:35
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/k8s/'>k8s</a>, 
+                        
+                        <a href='/tags/springboot/'>springboot</a>, 
+                        
+                        <a href='/tags/cors/'>cors</a>, 
+                        
+                        <a href='/tags/ingress-nginx/'>ingress-nginx</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h2 id="很烦的跨域问题"><a href="#很烦的跨域问题" class="headerlink" title="很烦的跨域问题"></a>很烦的跨域问题</h2><p>在前后端分离的情况下，假如在springboot没配置cors的情况下，就会出现这样的问题。</p>
+<pre class="line-numbers language-none"><code class="language-none">Access to XMLHttpRequest at &#39;http:&#x2F;&#x2F;localhost:8080&#x2F;api&#39; 
+from origin &#39;http:&#x2F;&#x2F;localhost:63342&#39; has been blocked by CORS policy: 
+Response to preflight request doesn&#39;t pass access control check: 
+No &#39;Access-Control-Allow-Origin&#39; header is present on the requested resource.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>那很简单，只要重写一下<code>WebMvcConfigurer</code>下的<code>addCorsMappings</code>方法就可以了，<em>真就这么容易就好了，草</em></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Override
+public void addCorsMappings(CorsRegistry registry) &#123;
+    registry.addMapping(&quot;&#x2F;**&quot;)
+            .allowedOrigins(&quot;*&quot;)
+            .allowedMethods(&quot;POST&quot;, &quot;GET&quot;, &quot;PUT&quot;, &quot;OPTIONS&quot;, &quot;DELETE&quot;)
+            .allowCredentials(true);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><p>根据以往的经验，一般请求链如下，通过浏览器然后通过nginx反向代理到springboot应用，按照从前来一直都没问题</p>
+<pre class="line-numbers language-none"><code class="language-none">web browser --&gt; nginx --&gt; springboot<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>但是我自己写了一个ajax在本地测试，发现是没有问题的，但是推送到测试服务器供前端测试的时候却不行</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">$<span class="token punctuation">.</span><span class="token function">ajax</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+            method<span class="token operator">:</span> <span class="token string">"POST"</span><span class="token punctuation">,</span>
+            url<span class="token operator">:</span> <span class="token string">"http://localhost:8080/api"</span><span class="token punctuation">,</span>
+        <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">value</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="allowedHeader配置"><a href="#allowedHeader配置" class="headerlink" title="allowedHeader配置"></a>allowedHeader配置</h2><p>然后前端那边提醒说到有自定义的请求头，然后我再测试，发现我本地也不行了</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">$<span class="token punctuation">.</span><span class="token function">ajax</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+            method<span class="token operator">:</span> <span class="token string">"POST"</span><span class="token punctuation">,</span>
+            url<span class="token operator">:</span> <span class="token string">"http://localhost:8080/api"</span><span class="token punctuation">,</span>
+            headers<span class="token operator">:</span><span class="token punctuation">&#123;</span>
+                <span class="token string">"token"</span><span class="token operator">:</span><span class="token string">"abc"</span>
+            <span class="token punctuation">&#125;</span>
+        <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">value</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>然后再修改springboot里的配置，在通过上面的ajax测试，发现成了，然后高兴推送到测试服务器，结果我再测试发现依然不行</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Override
+public void addCorsMappings(CorsRegistry registry) &#123;
+    registry.addMapping(&quot;&#x2F;**&quot;)
+            .allowedOrigins(&quot;*&quot;)
+            .allowedMethods(&quot;POST&quot;, &quot;GET&quot;, &quot;PUT&quot;, &quot;OPTIONS&quot;, &quot;DELETE&quot;)
+            .allowedHeaders(&quot;token&quot;)
+            .allowCredentials(true);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="nginx"><a href="#nginx" class="headerlink" title="nginx"></a>nginx</h2><p>然后因为往常nginx也没有配置，发现也没有问题，然后这次居然不行，然后把目光投向k8s的<code>nginx-ingress</code></p>
+<p>接着google了一番，发现<code>Ingress</code>需要配置几个<code>Annotation</code><br>最后  </p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml">apiVersion: extensions&#x2F;v1beta1
+kind: Ingress
+metadata:
+  name: demo
+  namespace: demo
+  annotations:
+    nginx.ingress.kubernetes.io&#x2F;enable-cors: &quot;true&quot;
+    nginx.ingress.kubernetes.io&#x2F;cors-allow-methods: &quot;PUT, GET, POST, OPTIONS&quot;
+    nginx.ingress.kubernetes.io&#x2F;cors-allow-origin: &quot;*&quot;
+    nginx.ingress.kubernetes.io&#x2F;cors-allow-headers: &quot;token&quot;
+    nginx.ingress.kubernetes.io&#x2F;cors-allow-credentials: &quot;true&quot;
+spec:
+  rules:
+  - host: api.demo.com
+    http:
+      paths:
+      - path: &#x2F;
+        backend:
+          serviceName: demo-service
+          servicePort: 80<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>最后通过上述操作，终于可以了</p>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/11/29/hotspot-gc/">
+        Next post<br>hotspot垃圾收集器
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?14149363"></script>
+
+
+
+</body>
+</html>

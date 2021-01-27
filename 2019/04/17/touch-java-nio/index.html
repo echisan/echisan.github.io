@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>初悉Java nio - EchisanBlog</title>
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="author" content="John Doe">
+<meta name="description" content="前言抄回来的nio介绍
+Java NIO（New IO）是从Java 1.4版本开始引入的一个新的IO API，可...">
+<meta name="keywords" content="">
+
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="renderer" content="webkit">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/journal.css?87961755">
+
+<script src="/js/loadCSS.js"></script>
+<script>
+    loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Material+Icons");
+    (function (d) {
+        var config = {
+                kitId: 'dwg1tuc',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h = d.documentElement, t = setTimeout(function () {
+                h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+            }, config.scriptTimeout), tk = d.createElement("script"), f = false,
+            s = d.getElementsByTagName("script")[0], a;
+        h.className += " wf-loading";
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+            a = this.readyState;
+            if (f || a && a != "complete" && a != "loaded") return;
+            f = true;
+            clearTimeout(t);
+            try {
+                Typekit.load(config)
+            } catch (e) {
+            }
+        };
+        s.parentNode.insertBefore(tk, s)
+    })(document);
+</script>
+<noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Anonymous+Pro:400|Material+Icons"/>
+</noscript>
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="EchisanBlog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<body>
+<div id="top"></div>
+<div id="app">
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            <a class="a-block drawer-menu-item false" href="http://example.com">
+                Home
+            </a>
+            
+
+            
+            
+            <a class="a-block drawer-menu-item false" href="/about/index.html">
+                关于我
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/search/index.html">
+                search
+            </a>
+            
+            <a class="a-block drawer-menu-item false" href="/tags/index.html">
+                tags
+            </a>
+            
+
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="/">
+            EchisanBlog
+        </a>
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="/">
+        <div class="single-column-header-title">EchisanBlog</div>
+        <div class="single-column-header-subtitle"></div>
+    </a>
+</div>
+<div ref="sideContainer" class="side-container">
+    <a class="a-block nav-head false" href="/">
+        <div class="nav-title">
+            Echisan.
+        </div>
+        <div class="nav-subtitle">
+            吃西瓜不吐籽
+        </div>
+    </a>
+
+    <div class="nav-link-list">
+        
+
+        
+        
+        <a class="a-block nav-link-item false" href="/about/index.html">
+            关于我
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/search/index.html">
+            search
+        </a>
+        
+        <a class="a-block nav-link-item false" href="/tags/index.html">
+            tags
+        </a>
+        
+
+        
+    </div>
+
+    
+    <div class="nav-footer">
+        Proudly published with Hexo<br>
+        
+        Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+        
+        &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+    </div>
+</div>
+<div ref="extraContainer" class="extra-container">
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+
+        
+    </div>
+</div>
+
+
+
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('')">
+                <div class="post-title">
+                    初悉Java nio
+                    <div class="post-meta">
+                        <time datetime="2019-04-17T06:45:55.000Z" itemprop="datePublished">
+                            2019-04-17 14:45
+                        </time>&nbsp;
+                        
+    
+                        
+                        
+                        <i class="material-icons" style="">label</i>
+                        
+                        <a href='/tags/java/'>java</a>, 
+                        
+                        <a href='/tags/nio/'>nio</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="抄回来的nio介绍"><a href="#抄回来的nio介绍" class="headerlink" title="抄回来的nio介绍"></a><del>抄回来的</del>nio介绍</h3><blockquote>
+<p>Java NIO（New IO）是从Java 1.4版本开始引入的一个新的IO API，可以替代标准的Java IO API。<br>NIO与原来的IO有同样的作用和目的，但是使用的方式完全不同，NIO支持面向缓冲区的、基于<br>通道的IO操作。NIO将以更加高效的方式进行文件的读写操作。</p>
+<p><a target="_blank" rel="noopener" href="https://www.babywang.huangsm.xyz/2019/03/01/nio%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E3%80%81/">https://www.babywang.huangsm.xyz/2019/03/01/nio%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E3%80%81/</a></p>
+</blockquote>
+<p>###本文章的目的 </p>
+<p>主要熟悉一下java中关于nio的<code>Buffer</code>api到底是干什么的，有什么用的，搞懂一下那几个关键api方便后面进阶吧。</p>
+<h3 id="分享一下我看到的一句话"><a href="#分享一下我看到的一句话" class="headerlink" title="分享一下我看到的一句话"></a>分享一下我看到的一句话</h3><blockquote>
+<p>换句话说，BIO里用户最关心“我要读”，NIO里用户最关心”我可以读了”，在AIO模型里用户更需要关注的是“读完了”。</p>
+<p><a target="_blank" rel="noopener" href="https://tech.meituan.com/2016/11/04/nio.html">https://tech.meituan.com/2016/11/04/nio.html</a></p>
+</blockquote>
+<p>看到这句话简直神清气爽。</p>
+<h2 id="NIO-API"><a href="#NIO-API" class="headerlink" title="NIO API"></a>NIO API</h2><p>下面是java nio中的一些api</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Buffer clear()</td>
+<td>清空缓存区并返回对缓存区的引用</td>
+</tr>
+<tr>
+<td>Buffer flip()</td>
+<td>将缓冲区的界限设置为当前位置，并将当前位置重置为0</td>
+</tr>
+<tr>
+<td>Boolean capacity()</td>
+<td>返回Buffer的capacity大小</td>
+</tr>
+<tr>
+<td>Boolean hasRemaining()</td>
+<td>判断缓冲区中是否还有元素</td>
+</tr>
+<tr>
+<td>Int limit()</td>
+<td>返回Buffer的界限(limit)的位置</td>
+</tr>
+<tr>
+<td>Buffer limit(int n)</td>
+<td>设置缓冲区界限为n，并返回一个具有新limit的缓冲区对象</td>
+</tr>
+<tr>
+<td>Buffer mark()</td>
+<td>对缓冲区设置标记</td>
+</tr>
+<tr>
+<td>int position()</td>
+<td>返回缓冲区的当前位置position</td>
+</tr>
+<tr>
+<td>Buffer position(n)</td>
+<td>设置缓冲区的当前位置为n，并返回修改后的Buffer对象</td>
+</tr>
+<tr>
+<td>int remaining()</td>
+<td>返回position和limit之间的元素个数</td>
+</tr>
+<tr>
+<td>Buffer reset()</td>
+<td>将位置position转到以前设置的mark所在的位置</td>
+</tr>
+<tr>
+<td>Buffer rewind()</td>
+<td>将位置设为0，取消设置的mark</td>
+</tr>
+</tbody></table>
+<h3 id="创建一个非直接缓存区"><a href="#创建一个非直接缓存区" class="headerlink" title="创建一个非直接缓存区"></a>创建一个非直接缓存区</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">ByteBuffer buffer &#x3D; ByteBuffer.allocate(8);<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>该代码创建了一个长度为8的字节非直接缓存区</p>
+<h3 id="写数据"><a href="#写数据" class="headerlink" title="写数据"></a>写数据</h3><p>如果往缓存区中写入数据，则通过调用 <code>buffer.put()</code>方法。</p>
+<p>写入一个字节数组</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">String str &#x3D; &quot;hello&quot;;
+buffer.put(str.getBytes());<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>写入一个字节数组的底层的实现</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public ByteBuffer put(byte[] src, int offset, int length) &#123;
+        checkBounds(offset, length, src.length);
+        if (length &gt; remaining())
+            throw new BufferOverflowException();
+        int end &#x3D; offset + length;
+        for (int i &#x3D; offset; i &lt; end; i++)
+            this.put(src[i]);
+        return this;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>此时缓存区应该是这样的，位置移动到了5（5的位置的可以写的位置）</p>
+<table>
+<thead>
+<tr>
+<th>下标</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据</td>
+<td>h</td>
+<td>e</td>
+<td>l</td>
+<td>l</td>
+<td>o</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>备注</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>position=5</td>
+<td></td>
+<td></td>
+<td>Limit =8<br />capacity=8</td>
+</tr>
+</tbody></table>
+<h3 id="flip"><a href="#flip" class="headerlink" title="flip()"></a>flip()</h3><blockquote>
+<p>Buffer flip()  ==&gt; 将缓冲区的界限设置为当前位置，并将当前位置重置为0</p>
+</blockquote>
+<p>在写入数据到缓存区之后，position的值发生了变化，如果需要将写入的数据读取出来，则需要将position改成0，而需要将限制设置在现在的位置上，因为往后就没有数据可读了，所以需要将limit设置为position（这里讲述的数字都是以上面的例子为基础）</p>
+<p>而<code>flip</code>方法底层实现正好是做了这样一件事情，调用该方法通俗来讲就是将写模式转换为读模式。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public final Buffer flip() &#123;
+        limit &#x3D; position;
+        position &#x3D; 0;
+        mark &#x3D; -1;
+        return this;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>调用完该方法后各个字段的数据应该是这样的：</p>
+<table>
+<thead>
+<tr>
+<th>下标</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据</td>
+<td>h</td>
+<td>e</td>
+<td>l</td>
+<td>l</td>
+<td>o</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>备注</td>
+<td>position=0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Limit =5</td>
+<td></td>
+<td></td>
+<td>capacity=8</td>
+</tr>
+</tbody></table>
+<h3 id="读数据"><a href="#读数据" class="headerlink" title="读数据"></a>读数据</h3><p>读数据则nio-api提供了get方法，本文以获取一段数据为例。</p>
+<p>首先看一下该方法，该方法会将读取到的数据放到<code>dst</code>数组中，<code>offset</code>为开始读取数据的位置，<code>length</code>为需要读多少长度的数据。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public ByteBuffer get(byte[] dst, int offset, int length)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>以下为测试代码：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#x2F;&#x2F; 创建一个可以读的最大长度的数据，用于存放读出来的数据
+byte[] dst &#x3D; new byte[buffer.limit()];
+&#x2F;&#x2F; 读取数据
+buffer.get(dst,0,buffer.limit());
+print(&quot;dst(string): &quot;+new String(dst,0,dst.length));
+&#x2F;&#x2F; 输出的为以下内容
+&#x2F;&#x2F; dst(string): hello<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>以下代码为该方法的底层实现；可以看到是通过循环调用<code>get()</code>方法的</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public ByteBuffer get(byte[] dst, int offset, int length) &#123;
+    checkBounds(offset, length, dst.length);
+    if (length &gt; remaining())
+        throw new BufferUnderflowException();
+    int end &#x3D; offset + length;
+    for (int i &#x3D; offset; i &lt; end; i++)
+        dst[i] &#x3D; get();
+    return this;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>查看该<code>get()</code>方法可以看到，该方法会获取当前位置的数据，读完之后会增加位置的值，即<code>position++</code>，也就是说<code>get()</code>操作会改变位置的值。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#x2F;**
+ * Relative &lt;i&gt;get&lt;&#x2F;i&gt; method.  Reads the byte at this buffer&#39;s
+ * current position, and then increments the position.
+ *
+ * @return  The byte at the buffer&#39;s current position
+ *
+ * @throws  BufferUnderflowException
+ *          If the buffer&#39;s current position is not smaller than its limit
+ *&#x2F;
+public abstract byte get();<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<h3 id="flip、rewind、clear以及compact的区别"><a href="#flip、rewind、clear以及compact的区别" class="headerlink" title="flip、rewind、clear以及compact的区别"></a>flip、rewind、clear以及compact的区别</h3><blockquote>
+<p>Buffer flip()       ==&gt; 将缓冲区的界限设置为当前位置，并将当前位置重置为0</p>
+<p>Buffer rewind() ==&gt; 将位置设为0，取消设置的mark</p>
+<p>Buffer clear()    ==&gt;  字面意思上是清除缓存数据，则实现是将位置设置成0，取消mark，将limit设置成      capacity</p>
+<p>Buffer compact() ==&gt; 字面意思就是压缩缓存（下文详细说）</p>
+</blockquote>
+<p>但是查看这四个方法，会发现<code>flip()</code> <code>rewind()</code> <code>clear()</code> 这三个方法的实现几乎是一样的，唯一的区别就在于是否会对<code>limit</code>进行处理。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public final Buffer flip() &#123;
+    limit &#x3D; position;
+    position &#x3D; 0;
+    mark &#x3D; -1;
+    return this;
+&#125;
+
+public final Buffer rewind() &#123;
+    position &#x3D; 0;
+    mark &#x3D; -1;
+    return this;
+&#125;
+
+public final Buffer clear() &#123;
+    position &#x3D; 0;
+    limit &#x3D; capacity;
+    mark &#x3D; -1;
+    return this;
+&#125;
+
+public ByteBuffer compact() &#123;
+    System.arraycopy(hb, ix(position()), hb, ix(0), remaining());
+    position(remaining());
+    limit(capacity());
+    discardMark();
+    return this;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>至于分别有什么用、什么使用场景目前暂时未知，但是需要清楚这几个方法的效果：</p>
+<ul>
+<li><p>flip：在写入数据之后调用该方法后再读取数据，只能读到<code>[0,limit)</code>之间的数据</p>
+</li>
+<li><p>rewind：重置标记，但是没有修改<code>limit</code>的值，而<code>limit</code>默认的值为<code>capacity</code>，如果没有修改过<code>limit</code>的值的情况下，可以读取到缓存区中所有的数据<code>[0,capacity)</code>，但是如果<code>limit</code>的值被修改过，则只能读取到的数据只有<code>[0,limit)</code></p>
+<blockquote>
+<p>The <code>Buffer.rewind()</code> sets the <code>position</code> back to 0, so you can reread all the data in the buffer. The <code>limit</code> remains untouched, thus still marking how many elements (bytes, chars etc.) that can be read from the <code>Buffer</code>.</p>
+<p><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-nio/buffers.html">http://tutorials.jenkov.com/java-nio/buffers.html</a></p>
+</blockquote>
+</li>
+<li><p>clear：字面上意思是清楚缓存，表示可以从位置0开始写入数据。详情可以看以下说明，说的很清楚了。</p>
+<blockquote>
+<p>Once you are done reading data out of the <code>Buffer</code> you have to make the <code>Buffer</code> ready for writing again. You can do so either by calling <code>clear()</code> or by calling <code>compact()</code>.</p>
+<p>If you call <code>clear()</code> the <code>position</code> is set back to 0 and the <code>limit</code> to <code>capacity</code>. In other words, the <code>Buffer</code> is cleared. The data in the <code>Buffer</code> is not cleared. Only the markers telling where you can write data into the <code>Buffer</code> are.</p>
+<p>If there is any unread data in the <code>Buffer</code> when you call <code>clear()</code> that data will be “forgotten”, meaning you no longer have any markers telling what data has been read, and what has not been read.</p>
+<p><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-nio/buffers.html">http://tutorials.jenkov.com/java-nio/buffers.html</a></p>
+</blockquote>
+</li>
+<li><p>compact：通俗的话来说就是将未读的数据设置到缓存的头部，并将位置设置在未读数据的尾部</p>
+<blockquote>
+<p><code>compact()</code> copies all unread data to the beginning of the <code>Buffer</code>. Then it sets <code>position</code> to right after the last unread element. The <code>limit</code> property is still set to <code>capacity</code>, just like <code>clear()</code> does. Now the <code>Buffer</code> is ready for writing, but you will not overwrite the unread data.</p>
+<p><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-nio/buffers.html">http://tutorials.jenkov.com/java-nio/buffers.html</a></p>
+</blockquote>
+</li>
+</ul>
+<h4 id="compact"><a href="#compact" class="headerlink" title="compact"></a>compact</h4><p>探究一下compact的实现，看看具体做的事什么操作。经过该一系列操作，会将未读的数据存放在缓存的头部，后续的写入操作不会覆盖掉未读的数据。而<code>clear</code>只是将<code>position</code>设置为0，写入操作会覆盖掉数据，两者的差别在次。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public ByteBuffer compact() &#123;
+    &#x2F;&#x2F; 1. 复制数组，将未读的内容复制到缓存的头部
+    System.arraycopy(hb, ix(position()), hb, ix(0), remaining());
+    &#x2F;&#x2F; 2. 将位置设置成复制后的数据的结尾，可以查看下方的remaining()方法的实现
+    position(remaining());
+    &#x2F;&#x2F; 3. 将limit设置成capacity，即整个缓存的长度
+    limit(capacity());
+    &#x2F;&#x2F; 4. 重置标记
+    discardMark();
+    return this;
+&#125;
+
+public final int remaining() &#123;
+    return limit - position;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="https://www.babywang.huangsm.xyz/2019/03/01/nio%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E3%80%81/">https://www.babywang.huangsm.xyz/2019/03/01/nio%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E3%80%81/</a></p>
+<p> <a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-nio/buffers.html">http://tutorials.jenkov.com/java-nio/buffers.html</a></p>
+<p> <a target="_blank" rel="noopener" href="https://tech.meituan.com/2016/11/04/nio.html">https://tech.meituan.com/2016/11/04/nio.html</a></p>
+
+                </div>
+            </div>
+    
+            <nav class="post-pagination">
+    
+    <a class="newer-posts" href="/2019/04/18/touch-nio-channel/">
+        Previous post<br>初悉java nio channel
+    </a>
+    
+    <span class="page-number"></span>
+    
+    <a class="older-posts" href="/2019/04/15/%E5%9C%A8%E4%BD%A0%E7%9A%84hexo%E4%B8%AD%E4%B9%9F%E6%94%BE%E5%85%A5%E4%B8%80%E5%8F%AAbilibili%E5%A8%98%E5%90%A7%EF%BC%81/">
+        Next post<br>在你的hexo中也放入一只bilibili娘吧！
+    </a>
+    
+</nav>
+
+    
+            
+
+
+        </div>
+    </div>
+    <div class="single-column-footer">
+    Proudly published with Hexo<br>
+    
+    Theme <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> by <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a><br>
+    
+    &copy; 2021 <a href="http://example.com">EchisanBlog</a>
+</div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"
+        integrity="sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"
+        integrity="sha256-FtWfRI+thWlNz2sB3SJbwKx5PgMyKIVgwHCTwa3biXc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@14.2.1/dist/smooth-scroll.polyfills.min.js"
+        integrity="sha256-CI4Gq5E0io1Pv0xM3qPM+NUIOhbIBvC3GiN1Y4KhXpw=" crossorigin="anonymous"></script>
+<script src="/js/journal.js?90743203"></script>
+
+
+
+</body>
+</html>
