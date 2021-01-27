@@ -1,0 +1,11 @@
+sidebar_title: "Echisan."
+sidebar_subtitle: "吃西瓜不吐籽"
+
+truncate_len: 60
+
+# rss: atom.xml
+
+# Choose the comment service according to your need.
+# Please do not use the two services at the same time.
+#livere: # [data-uid] for livere.com
+#disqus: # [short_name] for disqus.com
