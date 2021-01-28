@@ -1,7 +1,9 @@
-sidebar_title: "Echisan."
+sidebar_title: "echisan."
 sidebar_subtitle: "吃西瓜不吐籽"
 
 truncate_len: 60
+
+archives: true
 
 # rss: atom.xml
 
